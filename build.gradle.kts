@@ -1,3 +1,5 @@
+import java.io.File
+import java.util.zip.ZipFile
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFramework
 import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnRootExtension
@@ -197,6 +199,131 @@ mavenPublishing {
             connection.set("scm:git:git://github.com/KotlinMania/tungstenite-kotlin.git")
             developerConnection.set("scm:git:ssh://github.com/KotlinMania/tungstenite-kotlin.git")
         }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// CodeQL Java/Kotlin extraction task
+//
+// `.github/workflows/codeql.yml` invokes `./gradlew codeqlCompileJvm` to feed
+// kotlinc-compiled commonMain through the CodeQL Java agent. The KMP build
+// engages the K2 phased pipeline that bypasses the agent's
+// `K2JVMCompiler.doExecute` hook, so this task runs a separate single-target
+// JVM compile of commonMain sources via JavaExec with NO multiplatform flags,
+// causing kotlinc to dispatch through the legacy path the agent hooks.
+//
+// When commonMain has no .kt files (pre-port repo with only .gitkeep), the
+// task writes a tiny placeholder under `build/generated/codeql-empty-source/`
+// so kotlinc always has at least one source. Skipping the task with onlyIf
+// is intentionally avoided: a silent skip is indistinguishable in CI from a
+// real run, which is abusable. The sentinel approach forces the compile to
+// execute every time so any future drift is caught.
+
+val codeqlKotlinc: Configuration by configurations.creating {
+    description = "Kotlin compiler (CodeQL extraction target only - not published)"
+    isCanBeResolved = true
+    isCanBeConsumed = false
+}
+
+val codeqlSourceClasspath: Configuration by configurations.creating {
+    description = "Runtime classpath for CodeQL extraction of commonMain sources"
+    isCanBeResolved = true
+    isCanBeConsumed = false
+}
+
+dependencies {
+    codeqlKotlinc("org.jetbrains.kotlin:kotlin-compiler-embeddable:2.3.21")
+    codeqlSourceClasspath("org.jetbrains.kotlin:kotlin-stdlib:2.3.21")
+    codeqlSourceClasspath("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.11.0")
+    codeqlSourceClasspath("org.jetbrains.kotlinx:kotlinx-serialization-core-jvm:1.11.0")
+    codeqlSourceClasspath("org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.11.0")
+    codeqlSourceClasspath("org.jetbrains.kotlinx:kotlinx-datetime-jvm:0.8.0")
+    codeqlSourceClasspath("org.jetbrains.kotlinx:kotlinx-collections-immutable-jvm:0.4.0")
+    codeqlSourceClasspath("io.github.kotlinmania:bytes-kotlin-android:0.2.0")
+}
+
+val codeqlCompileJvm = tasks.register<JavaExec>("codeqlCompileJvm") {
+    description =
+        "Compile commonMain Kotlin sources with kotlinc 2.3.21 for CodeQL Java/Kotlin extraction. " +
+        "Not part of any published artifact; intended to be wrapped by `codeql database create` " +
+        "or `github/codeql-action/init` so the LD_PRELOAD tracer can attach the extractor agent " +
+        "to the in-process kotlinc."
+    group = "verification"
+
+    classpath(codeqlKotlinc)
+    mainClass.set("org.jetbrains.kotlin.cli.jvm.K2JVMCompiler")
+
+    val outDir = layout.buildDirectory.dir("classes/kotlin/codeql-jvm")
+    val sources = fileTree("src/commonMain/kotlin") { include("**/*.kt") }
+    val sentinelDir = layout.buildDirectory.dir("generated/codeql-empty-source")
+    val extractedAarDir = layout.buildDirectory.dir("generated/codeql-aar-classes")
+    inputs.files(sources).withPathSensitivity(PathSensitivity.RELATIVE)
+    inputs.files(codeqlSourceClasspath).withNormalizer(ClasspathNormalizer::class.java)
+    outputs.dir(outDir)
+    outputs.dir(sentinelDir)
+    outputs.dir(extractedAarDir)
+
+    doFirst {
+        outDir.get().asFile.mkdirs()
+        val sourceFiles = sources.files.toMutableList()
+        if (sourceFiles.isEmpty()) {
+            val sentinelFile = sentinelDir.get().asFile.resolve(
+                "io/github/kotlinmania/codeql/_CodeqlEmptySource.kt",
+            )
+            sentinelFile.parentFile.mkdirs()
+            sentinelFile.writeText(
+                """
+                // Auto-generated. Present so codeqlCompileJvm has at least
+                // one Kotlin source to feed kotlinc; replaced by real
+                // commonMain content once porting begins.
+                package io.github.kotlinmania.codeql
+
+                private object _CodeqlEmptySource
+
+                """.trimIndent(),
+            )
+            sourceFiles += sentinelFile
+        }
+        // Sibling kotlinmania `*-kotlin` deps publish AAR-only JVM-compatible
+        // artifacts (no `-jvm` variant; strict-KMP). kotlinc cannot read AARs
+        // directly, so extract each `classes.jar` to a stable path and put
+        // those JARs on the classpath alongside ordinary JAR dependencies.
+        val aarRoot = extractedAarDir.get().asFile
+        aarRoot.mkdirs()
+        val extractedJars = mutableListOf<File>()
+        val jarsAndDirs = mutableListOf<File>()
+        codeqlSourceClasspath.files.forEach { file ->
+            if (file.name.endsWith(".aar")) {
+                val perAarDir = aarRoot.resolve(file.nameWithoutExtension)
+                val classesJar = perAarDir.resolve("classes.jar")
+                if (!classesJar.exists()) {
+                    perAarDir.mkdirs()
+                    ZipFile(file).use { zip ->
+                        val entry = zip.getEntry("classes.jar")
+                            ?: error("AAR ${file.name} has no classes.jar")
+                        zip.getInputStream(entry).use { input ->
+                            classesJar.outputStream().use { out -> input.copyTo(out) }
+                        }
+                    }
+                }
+                extractedJars += classesJar
+            } else {
+                jarsAndDirs += file
+            }
+        }
+        val classpath = (jarsAndDirs + extractedJars).joinToString(File.pathSeparator) { it.absolutePath }
+        args = listOf(
+            "-d", outDir.get().asFile.absolutePath,
+            "-classpath", classpath,
+            "-jvm-target", "21",
+            "-no-stdlib",
+            "-no-reflect",
+            "-language-version", "2.3",
+            "-api-version", "2.3",
+            "-opt-in", "kotlin.time.ExperimentalTime",
+            "-opt-in", "kotlin.concurrent.atomics.ExperimentalAtomicApi",
+            "-Xexpect-actual-classes",
+        ) + sourceFiles.map { it.absolutePath }
     }
 }
 
