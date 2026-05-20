@@ -1,5 +1,6 @@
 import java.io.File
-import java.util.zip.ZipFile
+import org.gradle.api.tasks.ClasspathNormalizer
+import org.gradle.api.tasks.PathSensitivity
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFramework
 import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnRootExtension
@@ -231,6 +232,12 @@ val codeqlSourceClasspath: Configuration by configurations.creating {
     isCanBeConsumed = false
 }
 
+val codeqlAndroidAar: Configuration by configurations.creating {
+    description = "Android AAR artifacts for CodeQL classpath extraction (classes.jar only)"
+    isCanBeResolved = true
+    isCanBeConsumed = false
+}
+
 dependencies {
     codeqlKotlinc("org.jetbrains.kotlin:kotlin-compiler-embeddable:2.3.21")
     codeqlSourceClasspath("org.jetbrains.kotlin:kotlin-stdlib:2.3.21")
@@ -239,7 +246,7 @@ dependencies {
     codeqlSourceClasspath("org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.11.0")
     codeqlSourceClasspath("org.jetbrains.kotlinx:kotlinx-datetime-jvm:0.8.0")
     codeqlSourceClasspath("org.jetbrains.kotlinx:kotlinx-collections-immutable-jvm:0.4.0")
-    codeqlSourceClasspath("io.github.kotlinmania:bytes-kotlin-android:0.2.0")
+    codeqlAndroidAar("io.github.kotlinmania:bytes-kotlin-android:0.2.0")
 }
 
 val codeqlCompileJvm = tasks.register<JavaExec>("codeqlCompileJvm") {
@@ -256,12 +263,13 @@ val codeqlCompileJvm = tasks.register<JavaExec>("codeqlCompileJvm") {
     val outDir = layout.buildDirectory.dir("classes/kotlin/codeql-jvm")
     val sources = fileTree("src/commonMain/kotlin") { include("**/*.kt") }
     val sentinelDir = layout.buildDirectory.dir("generated/codeql-empty-source")
-    val extractedAarDir = layout.buildDirectory.dir("generated/codeql-aar-classes")
+    val aarExtractDir = layout.buildDirectory.dir("codeql/android-aar")
     inputs.files(sources).withPathSensitivity(PathSensitivity.RELATIVE)
     inputs.files(codeqlSourceClasspath).withNormalizer(ClasspathNormalizer::class.java)
+    inputs.files(codeqlAndroidAar).withNormalizer(ClasspathNormalizer::class.java)
     outputs.dir(outDir)
     outputs.dir(sentinelDir)
-    outputs.dir(extractedAarDir)
+    outputs.dir(aarExtractDir)
 
     doFirst {
         outDir.get().asFile.mkdirs()
@@ -284,37 +292,26 @@ val codeqlCompileJvm = tasks.register<JavaExec>("codeqlCompileJvm") {
             )
             sourceFiles += sentinelFile
         }
-        // Sibling kotlinmania `*-kotlin` deps publish AAR-only JVM-compatible
-        // artifacts (no `-jvm` variant; strict-KMP). kotlinc cannot read AARs
-        // directly, so extract each `classes.jar` to a stable path and put
-        // those JARs on the classpath alongside ordinary JAR dependencies.
-        val aarRoot = extractedAarDir.get().asFile
-        aarRoot.mkdirs()
         val extractedJars = mutableListOf<File>()
-        val jarsAndDirs = mutableListOf<File>()
-        codeqlSourceClasspath.files.forEach { file ->
-            if (file.name.endsWith(".aar")) {
-                val perAarDir = aarRoot.resolve(file.nameWithoutExtension)
-                val classesJar = perAarDir.resolve("classes.jar")
-                if (!classesJar.exists()) {
-                    perAarDir.mkdirs()
-                    ZipFile(file).use { zip ->
-                        val entry = zip.getEntry("classes.jar")
-                            ?: error("AAR ${file.name} has no classes.jar")
-                        zip.getInputStream(entry).use { input ->
-                            classesJar.outputStream().use { out -> input.copyTo(out) }
-                        }
-                    }
-                }
+        for (aar in codeqlAndroidAar.resolve()) {
+            val extractTarget = aarExtractDir.get().asFile.resolve(aar.nameWithoutExtension)
+            extractTarget.mkdirs()
+            copy {
+                from(zipTree(aar))
+                include("classes.jar")
+                into(extractTarget)
+            }
+            val classesJar = extractTarget.resolve("classes.jar")
+            if (classesJar.exists()) {
                 extractedJars += classesJar
-            } else {
-                jarsAndDirs += file
             }
         }
-        val classpath = (jarsAndDirs + extractedJars).joinToString(File.pathSeparator) { it.absolutePath }
+        val fullClasspath =
+            (codeqlSourceClasspath.resolve() + extractedJars)
+                .joinToString(File.pathSeparator) { it.absolutePath }
         args = listOf(
             "-d", outDir.get().asFile.absolutePath,
-            "-classpath", classpath,
+            "-classpath", fullClasspath,
             "-jvm-target", "21",
             "-no-stdlib",
             "-no-reflect",
