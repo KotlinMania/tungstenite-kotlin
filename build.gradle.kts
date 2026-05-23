@@ -204,6 +204,7 @@ kotlin {
     iosSimulatorArm64 {
         binaries.framework {
             baseName = "Tungstenite"
+            isStatic = true
             xcf.add(this)
         }
     }
