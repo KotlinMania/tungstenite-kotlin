@@ -653,12 +653,14 @@ val fullTargetBuildTasks = listOf(
     "exportTargetPublicationCoordinatesForWatchosSimulatorArm64ApiElements",
 )
 
-tasks.named("build") {
-    dependsOn(fullTargetBuildTasks)
-}
-
 afterEvaluate {
     tasks.named("build") {
+        // Wire each explicit name only when the multiplatform / Android plugin actually
+        // registered it for this repo's target surface. Tungstenite intentionally omits
+        // JVM, WasmWASI, tvOS, watchOS, linuxArm64, iosX64, and androidNative* targets
+        // (see kotlin {} block above); referencing those task names unconditionally would
+        // fail task-graph construction with `Task with name 'jvmMainClasses' not found`.
+        dependsOn(fullTargetBuildTasks.filter { taskName -> tasks.findByName(taskName) != null })
         dependsOn(
             tasks.matching {
                 name.endsWith("MainClasses") ||
