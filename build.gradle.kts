@@ -244,6 +244,10 @@ kotlin {
 
                 // Byte buffer primitives (port of tokio-rs/bytes)
                 implementation("io.github.kotlinmania:bytes-kotlin:0.2.1")
+                // Upstream src/{client,protocol/mod,protocol/frame/mod,protocol/frame/frame,
+                // handshake/{client,server,machine},extensions/compression/deflate/config}.rs
+                // all `use log::*`.
+                implementation("io.github.kotlinmania:log-kotlin:0.1.1")
             }
         }
 
