@@ -188,18 +188,10 @@ kotlin {
     val xcf = XCFramework("Tungstenite")
 
     macosArm64 {
-        binaries.framework {
-            baseName = "Tungstenite"
-            xcf.add(this)
-        }
+        binaries.framework { baseName = "Tungstenite"; xcf.add(this) }
     }
-    linuxX64()
-    mingwX64()
     iosArm64 {
-        binaries.framework {
-            baseName = "Tungstenite"
-            xcf.add(this)
-        }
+        binaries.framework { baseName = "Tungstenite"; xcf.add(this) }
     }
     iosSimulatorArm64 {
         binaries.framework {
@@ -208,6 +200,43 @@ kotlin {
             xcf.add(this)
         }
     }
+    iosX64 {
+        binaries.framework {
+            baseName = "Tungstenite"
+            isStatic = true
+            xcf.add(this)
+        }
+    }
+
+    tvosArm64 {
+        binaries.framework { baseName = "Tungstenite"; xcf.add(this) }
+    }
+    tvosSimulatorArm64 {
+        binaries.framework { baseName = "Tungstenite"; xcf.add(this) }
+    }
+
+    watchosArm32 {
+        binaries.framework { baseName = "Tungstenite"; xcf.add(this) }
+    }
+    watchosArm64 {
+        binaries.framework { baseName = "Tungstenite"; xcf.add(this) }
+    }
+    watchosDeviceArm64 {
+        binaries.framework { baseName = "Tungstenite"; xcf.add(this) }
+    }
+    watchosSimulatorArm64 {
+        binaries.framework { baseName = "Tungstenite"; xcf.add(this) }
+    }
+
+    linuxX64()
+    linuxArm64()
+    mingwX64()
+
+    androidNativeArm32()
+    androidNativeArm64()
+    androidNativeX86()
+    androidNativeX64()
+
     js {
         browser()
         nodejs()
@@ -215,6 +244,10 @@ kotlin {
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
         browser()
+        nodejs()
+    }
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmWasi {
         nodejs()
     }
 
@@ -233,6 +266,8 @@ kotlin {
         }
     }
 
+    jvm()
+
     sourceSets {
         val commonMain by getting {
             dependencies {
@@ -243,7 +278,7 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.4.0")
 
                 // Byte buffer primitives (port of tokio-rs/bytes)
-                implementation("io.github.kotlinmania:bytes-kotlin:0.2.0")
+                implementation("io.github.kotlinmania:bytes-kotlin:0.2.1")
             }
         }
 
@@ -391,7 +426,7 @@ dependencies {
     codeqlSourceClasspath("org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.11.0")
     codeqlSourceClasspath("org.jetbrains.kotlinx:kotlinx-datetime-jvm:0.8.0")
     codeqlSourceClasspath("org.jetbrains.kotlinx:kotlinx-collections-immutable-jvm:0.4.0")
-    codeqlAndroidAar("io.github.kotlinmania:bytes-kotlin-android:0.2.0")
+    codeqlAndroidAar("io.github.kotlinmania:bytes-kotlin-android:0.2.1")
 }
 
 val codeqlCompileJvm = tasks.register<JavaExec>("codeqlCompileJvm") {
@@ -653,14 +688,12 @@ val fullTargetBuildTasks = listOf(
     "exportTargetPublicationCoordinatesForWatchosSimulatorArm64ApiElements",
 )
 
+tasks.named("build") {
+    dependsOn(fullTargetBuildTasks)
+}
+
 afterEvaluate {
     tasks.named("build") {
-        // Wire each explicit name only when the multiplatform / Android plugin actually
-        // registered it for this repo's target surface. Tungstenite intentionally omits
-        // JVM, WasmWASI, tvOS, watchOS, linuxArm64, iosX64, and androidNative* targets
-        // (see kotlin {} block above); referencing those task names unconditionally would
-        // fail task-graph construction with `Task with name 'jvmMainClasses' not found`.
-        dependsOn(fullTargetBuildTasks.filter { taskName -> tasks.findByName(taskName) != null })
         dependsOn(
             tasks.matching {
                 name.endsWith("MainClasses") ||
