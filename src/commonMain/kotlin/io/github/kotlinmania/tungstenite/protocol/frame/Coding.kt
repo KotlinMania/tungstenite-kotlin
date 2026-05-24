@@ -1,4 +1,4 @@
-// port-lint: source src/protocol/frame/coding.rs
+// port-lint: source protocol/frame/coding.rs
 @file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 
 package io.github.kotlinmania.tungstenite.protocol.frame

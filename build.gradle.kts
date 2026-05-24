@@ -7,6 +7,9 @@ import java.util.zip.ZipInputStream
 import org.gradle.api.GradleException
 import org.gradle.api.tasks.ClasspathNormalizer
 import org.gradle.api.tasks.PathSensitivity
+import org.gradle.api.tasks.testing.AbstractTestTask
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.gradle.kotlin.dsl.support.serviceOf
 import org.gradle.process.ExecOperations
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
@@ -48,6 +51,23 @@ val androidSdkManager = projectAndroidSdkDir.resolve(
     },
 )
 val androidSdkInstallMarker = projectAndroidSdkDir.resolve(".install-complete")
+val maxAndroidSdkLicensePrompts = 200
+val requiredAndroidSdkPackageDirs = listOf(
+    projectAndroidSdkDir.resolve("platform-tools"),
+    projectAndroidSdkDir.resolve("platforms/android-$projectCompileSdk"),
+    projectAndroidSdkDir.resolve("build-tools/$projectAndroidBuildTools"),
+)
+
+fun isProjectAndroidSdkInstalled(): Boolean {
+    val installed =
+        androidSdkInstallMarker.exists() &&
+            androidSdkManager.exists() &&
+            requiredAndroidSdkPackageDirs.all { it.exists() }
+    if (!installed && androidSdkInstallMarker.exists()) {
+        androidSdkInstallMarker.delete()
+    }
+    return installed
+}
 
 fun writeAndroidLocalProperties() {
     val sdkDirPropertyValue = projectAndroidSdkDir.absolutePath.replace("\\", "/")
@@ -112,7 +132,7 @@ fun downloadAndroidCommandLineTools() {
 }
 
 fun installProjectAndroidSdk(execOperations: ExecOperations) {
-    if (androidSdkInstallMarker.exists() && androidSdkManager.exists()) {
+    if (isProjectAndroidSdkInstalled()) {
         writeAndroidLocalProperties()
         println("setup-android-sdk: SDK already installed at $projectAndroidSdkDir")
         return
@@ -123,21 +143,21 @@ fun installProjectAndroidSdk(execOperations: ExecOperations) {
     }
 
     println("setup-android-sdk: accepting licenses")
-    val licenseAnswers = "y\n".repeat(200).toByteArray(Charsets.UTF_8)
-    val licenseResult = execOperations.exec {
+    val licenseAnswers = "y\n".repeat(maxAndroidSdkLicensePrompts).toByteArray(Charsets.UTF_8)
+    val licenseExecResult = execOperations.exec {
         commandLine(sdkManagerCommand("--sdk_root=${projectAndroidSdkDir.absolutePath}", "--licenses"))
         standardInput = ByteArrayInputStream(licenseAnswers)
         isIgnoreExitValue = true
     }
-    if (licenseResult.exitValue != 0) {
-        throw GradleException("Android SDK license acceptance failed with exit code ${licenseResult.exitValue}")
+    if (licenseExecResult.exitValue != 0) {
+        throw GradleException("Android SDK license acceptance failed with exit code ${licenseExecResult.exitValue}")
     }
 
     println("setup-android-sdk: installing platform-tools, android-$projectCompileSdk, build-tools;$projectAndroidBuildTools")
     val installLog = projectAndroidSdkDir.resolve("sdkmanager-install.log")
     installLog.parentFile.mkdirs()
     installLog.outputStream().use { output ->
-        val installResult = execOperations.exec {
+        val installExecResult = execOperations.exec {
             commandLine(
                 sdkManagerCommand(
                     "--sdk_root=${projectAndroidSdkDir.absolutePath}",
@@ -150,9 +170,9 @@ fun installProjectAndroidSdk(execOperations: ExecOperations) {
             errorOutput = output
             isIgnoreExitValue = true
         }
-        if (installResult.exitValue != 0) {
+        if (installExecResult.exitValue != 0) {
             throw GradleException(
-                "Android SDK package install failed with exit code ${installResult.exitValue}. " +
+                "Android SDK package install failed with exit code ${installExecResult.exitValue}. " +
                     "Install log:\n${installLog.readText()}",
             )
         }
@@ -169,6 +189,8 @@ fun installProjectAndroidSdk(execOperations: ExecOperations) {
 // The Android Gradle plugin resolves the SDK location while Gradle builds the
 // task graph, before any task executes, so a project-local Android SDK must
 // already be installed by the time configuration reaches the android target.
+// This configuration-time installer is idempotent and always writes
+// local.properties to this repo's own .android-sdk path.
 val androidSdkExecOperations = serviceOf<ExecOperations>()
 installProjectAndroidSdk(androidSdkExecOperations)
 
@@ -178,6 +200,7 @@ kotlin {
     sourceSets.all {
         languageSettings.optIn("kotlin.time.ExperimentalTime")
         languageSettings.optIn("kotlin.concurrent.atomics.ExperimentalAtomicApi")
+        languageSettings.optIn("kotlin.ExperimentalUnsignedTypes")
     }
 
     compilerOptions {
@@ -191,7 +214,11 @@ kotlin {
         binaries.framework { baseName = "Tungstenite"; xcf.add(this) }
     }
     iosArm64 {
-        binaries.framework { baseName = "Tungstenite"; xcf.add(this) }
+        binaries.framework {
+            baseName = "Tungstenite"
+            isStatic = true
+            xcf.add(this)
+        }
     }
     iosSimulatorArm64 {
         binaries.framework {
@@ -291,12 +318,30 @@ kotlin {
     jvmToolchain(21)
 }
 
+tasks.withType<AbstractTestTask>().configureEach {
+    testLogging {
+        events(
+            TestLogEvent.STARTED,
+            TestLogEvent.PASSED,
+            TestLogEvent.SKIPPED,
+            TestLogEvent.FAILED,
+            TestLogEvent.STANDARD_OUT,
+            TestLogEvent.STANDARD_ERROR,
+        )
+        exceptionFormat = TestExceptionFormat.FULL
+        showCauses = true
+        showExceptions = true
+        showStackTraces = true
+        showStandardStreams = true
+    }
+}
+
 rootProject.extensions.configure<NodeJsEnvSpec>("kotlinNodeJsSpec") {
-    version.set("22.22.2")
+    version.set("24.15.0")
 }
 
 rootProject.extensions.configure<WasmNodeJsEnvSpec>("kotlinWasmNodeJsSpec") {
-    version.set("22.22.2")
+    version.set("24.15.0")
 }
 
 rootProject.extensions.configure<YarnRootEnvSpec>("kotlinYarnSpec") {
@@ -394,8 +439,9 @@ mavenPublishing {
 // kotlinc-compiled commonMain through the CodeQL Java agent. The KMP build
 // engages the K2 phased pipeline that bypasses the agent's
 // `K2JVMCompiler.doExecute` hook, so this task runs a separate single-target
-// JVM compile of commonMain sources via JavaExec with NO multiplatform flags,
-// causing kotlinc to dispatch through the legacy path the agent hooks.
+// JVM compile of commonMain sources via JavaExec while still marking them as
+// common sources. That lets common-only annotations such as HiddenFromObjC
+// compile while kotlinc dispatches through the legacy path the agent hooks.
 //
 // When commonMain has no .kt files (pre-port repo with only .gitkeep), the
 // task writes a tiny placeholder under `build/generated/codeql-empty-source/`
@@ -458,7 +504,8 @@ val codeqlCompileJvm = tasks.register<JavaExec>("codeqlCompileJvm") {
 
     doFirst {
         outDir.get().asFile.mkdirs()
-        val sourceFiles = sources.files.toMutableList()
+        val commonSourceFiles = sources.files.toMutableList()
+        val sourceFiles = commonSourceFiles.toMutableList()
         if (sourceFiles.isEmpty()) {
             val sentinelFile = sentinelDir.get().asFile.resolve(
                 "io/github/kotlinmania/codeql/_CodeqlEmptySource.kt",
@@ -475,6 +522,7 @@ val codeqlCompileJvm = tasks.register<JavaExec>("codeqlCompileJvm") {
 
                 """.trimIndent(),
             )
+            commonSourceFiles += sentinelFile
             sourceFiles += sentinelFile
         }
         val extractedJars = mutableListOf<File>()
@@ -502,6 +550,8 @@ val codeqlCompileJvm = tasks.register<JavaExec>("codeqlCompileJvm") {
             "-no-reflect",
             "-language-version", "2.3",
             "-api-version", "2.3",
+            "-Xmulti-platform",
+            "-Xcommon-sources=${commonSourceFiles.joinToString(",") { it.absolutePath }}",
             "-opt-in", "kotlin.time.ExperimentalTime",
             "-opt-in", "kotlin.concurrent.atomics.ExperimentalAtomicApi",
             "-Xexpect-actual-classes",
@@ -520,15 +570,52 @@ tasks.register("setupAndroidSdk") {
 tasks.register("test") {
     group = "verification"
     description =
-        "Runs a portable test suite (macOS + JS + WasmJS). Android and non-host native targets are intentionally excluded."
+        "Runs the host-portable test suite (macOS + JS + WasmJS + Android unit). " +
+        "Non-host native targets (mingwX64, linuxX64) only run on their own host."
 
     val defaultTestTasks = listOf(
         "macosArm64Test",
+        "jvmTest",
         "jsNodeTest",
         "wasmJsNodeTest",
+        "compileAndroidMain",
+        "assembleUnitTest",
     )
 
     dependsOn(defaultTestTasks.mapNotNull { taskName -> tasks.findByName(taskName) })
+}
+
+// The generated Wasm-WASI Node test runner cannot see the filesystem unless
+// the project directory is preopened. Patch the runner before wasmWasiNodeTest.
+val patchWasmWasiNodePreopens = tasks.register("patchWasmWasiNodePreopens") {
+    description = "Preopen the project directory for the generated Wasm-WASI Node test runner."
+    group = "verification"
+    dependsOn("compileTestDevelopmentExecutableKotlinWasmWasi")
+    outputs.upToDateWhen { false }
+
+    doLast {
+        val runnerFile = layout.buildDirectory.file(
+            "compileSync/wasmWasi/test/testDevelopmentExecutable/kotlin/${rootProject.name}-test.mjs",
+        ).get().asFile
+        if (!runnerFile.exists()) {
+            // No Wasm-WASI test runner was generated, so there is nothing to preopen.
+            return@doLast
+        }
+        val text = runnerFile.readText()
+        val withCwdImport = text.replace(
+            "import { argv, env } from 'node:process';",
+            "import { argv, env, cwd } from 'node:process';",
+        )
+        val patched = withCwdImport.replace(
+            "const wasi = new WASI({ version: 'preview1', args: argv, env, });",
+            "const wasi = new WASI({ version: 'preview1', args: argv, env, preopens: { '/': cwd() }, });",
+        )
+        runnerFile.writeText(patched)
+    }
+}
+
+tasks.named("wasmWasiNodeTest") {
+    dependsOn(patchWasmWasiNodePreopens)
 }
 
 val xcodeSwiftExportEnvironmentNames = listOf(
