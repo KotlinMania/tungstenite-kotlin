@@ -37,9 +37,12 @@ jobs:
           fi
           echo "XCFramework name: $XCF_NAME → task: assemble${XCF_NAME}XCFramework"
           ./gradlew \
-            compileKotlinIosArm64 \
-            compileKotlinIosSimulatorArm64 \
-            compileKotlinIosX64 \
+            iosArm64Binaries \
+            iosArm64TestBinaries \
+            iosSimulatorArm64Binaries \
+            iosSimulatorArm64TestBinaries \
+            iosX64Binaries \
+            iosX64TestBinaries \
             iosSimulatorArm64Test \
             "assemble${XCF_NAME}XCFramework" \
             --no-configuration-cache
