@@ -309,7 +309,7 @@ kotlin {
                 // Upstream src/{client,protocol/mod,protocol/frame/mod,protocol/frame/frame,
                 // handshake/{client,server,machine},extensions/compression/deflate/config}.rs
                 // all `use log::*`.
-                implementation("io.github.kotlinmania:log-kotlin:0.1.1")
+                implementation("io.github.kotlinmania:log-kotlin:0.1.3")
             }
         }
 
@@ -477,7 +477,7 @@ dependencies {
     codeqlSourceClasspath("org.jetbrains.kotlinx:kotlinx-datetime-jvm:0.8.0")
     codeqlSourceClasspath("org.jetbrains.kotlinx:kotlinx-collections-immutable-jvm:0.4.0")
     codeqlAndroidAar("io.github.kotlinmania:bytes-kotlin-android:0.2.1")
-    codeqlAndroidAar("io.github.kotlinmania:log-kotlin-android:0.1.1")
+    codeqlAndroidAar("io.github.kotlinmania:log-kotlin-android:0.1.3")
 }
 
 val codeqlCompileJvm = tasks.register<JavaExec>("codeqlCompileJvm") {
