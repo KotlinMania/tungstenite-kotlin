@@ -27,7 +27,7 @@ collections-immutable = { module = "org.jetbrains.kotlinx:kotlinx-collections-im
 bytes = { module = "io.github.kotlinmania:bytes-kotlin", version.ref = "bytes" }
 
 bytes-kotlin = { module = "io.github.kotlinmania:bytes-kotlin", version = "0.2.1" }
-log-kotlin = { module = "io.github.kotlinmania:log-kotlin", version = "0.1.1" }
+log-kotlin = { module = "io.github.kotlinmania:log-kotlin", version = "0.1.3" }
 [bundles]
 tungstenite-commonMain = [
     "kotlinx-coroutines-core",
