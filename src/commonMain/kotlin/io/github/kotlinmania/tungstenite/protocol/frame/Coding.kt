@@ -11,12 +11,16 @@ import kotlin.native.HiddenFromObjC
 @HiddenFromObjC
 public sealed class OpCode {
     /** Data (text or binary). */
-    public data class Data(public val code: io.github.kotlinmania.tungstenite.protocol.frame.Data) : OpCode() {
+    public data class Data(
+        public val code: io.github.kotlinmania.tungstenite.protocol.frame.Data,
+    ) : OpCode() {
         override fun toString(): String = code.toString()
     }
 
     /** Control message (close, ping, pong). */
-    public data class Control(public val code: io.github.kotlinmania.tungstenite.protocol.frame.Control) : OpCode() {
+    public data class Control(
+        public val code: io.github.kotlinmania.tungstenite.protocol.frame.Control,
+    ) : OpCode() {
         override fun toString(): String = code.toString()
     }
 
@@ -44,11 +48,19 @@ public sealed class OpCode {
                 0 -> Data(io.github.kotlinmania.tungstenite.protocol.frame.Data.Continue)
                 1 -> Data(io.github.kotlinmania.tungstenite.protocol.frame.Data.Text)
                 2 -> Data(io.github.kotlinmania.tungstenite.protocol.frame.Data.Binary)
-                in 3..7 -> Data(io.github.kotlinmania.tungstenite.protocol.frame.Data.Reserved(byte))
+                in 3..7 ->
+                    Data(
+                        io.github.kotlinmania.tungstenite.protocol.frame.Data
+                            .Reserved(byte),
+                    )
                 8 -> Control(io.github.kotlinmania.tungstenite.protocol.frame.Control.Close)
                 9 -> Control(io.github.kotlinmania.tungstenite.protocol.frame.Control.Ping)
                 10 -> Control(io.github.kotlinmania.tungstenite.protocol.frame.Control.Pong)
-                in 11..15 -> Control(io.github.kotlinmania.tungstenite.protocol.frame.Control.Reserved(byte))
+                in 11..15 ->
+                    Control(
+                        io.github.kotlinmania.tungstenite.protocol.frame.Control
+                            .Reserved(byte),
+                    )
                 else -> error("Bug: OpCode out of range: $b")
             }
     }
@@ -73,7 +85,9 @@ public sealed class Data {
     }
 
     /** 0x3-7 are reserved for further non-control frames */
-    public data class Reserved(public val value: UByte) : Data() {
+    public data class Reserved(
+        public val value: UByte,
+    ) : Data() {
         override fun toString(): String = "RESERVED_DATA_$value"
     }
 }
@@ -97,7 +111,9 @@ public sealed class Control {
     }
 
     /** 0xb-f are reserved for further control frames */
-    public data class Reserved(public val value: UByte) : Control() {
+    public data class Reserved(
+        public val value: UByte,
+    ) : Control() {
         override fun toString(): String = "RESERVED_CONTROL_$value"
     }
 }
@@ -204,19 +220,27 @@ public sealed class CloseCode {
 
     public object Tls : CloseCode()
 
-    public data class Reserved(public val value: UShort) : CloseCode() {
+    public data class Reserved(
+        public val value: UShort,
+    ) : CloseCode() {
         override fun toString(): String = value.toString()
     }
 
-    public data class Iana(public val value: UShort) : CloseCode() {
+    public data class Iana(
+        public val value: UShort,
+    ) : CloseCode() {
         override fun toString(): String = value.toString()
     }
 
-    public data class Library(public val value: UShort) : CloseCode() {
+    public data class Library(
+        public val value: UShort,
+    ) : CloseCode() {
         override fun toString(): String = value.toString()
     }
 
-    public data class Bad(public val value: UShort) : CloseCode() {
+    public data class Bad(
+        public val value: UShort,
+    ) : CloseCode() {
         override fun toString(): String = value.toString()
     }
 
