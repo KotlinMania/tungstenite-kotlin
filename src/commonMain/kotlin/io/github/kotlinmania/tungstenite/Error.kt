@@ -11,7 +11,8 @@ public typealias TungsteniteResult<T> = Result<T>
 public sealed class TungsteniteException(
     message: String,
     cause: Throwable? = null,
-) : Exception(message, cause), NonBlockingError {
+) : Exception(message, cause),
+    NonBlockingError {
     override fun intoNonBlocking(): Throwable? = this
 
     /** WebSocket connection closed normally. */

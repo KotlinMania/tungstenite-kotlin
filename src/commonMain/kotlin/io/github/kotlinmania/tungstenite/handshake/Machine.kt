@@ -123,9 +123,7 @@ public sealed class HandshakeState {
             return position == other.position && data.contentEquals(other.data)
         }
 
-        override fun hashCode(): Int {
-            return 31 * data.contentHashCode() + position
-        }
+        override fun hashCode(): Int = 31 * data.contentHashCode() + position
     }
 
     public object Flushing : HandshakeState()

@@ -11,15 +11,16 @@ class BufferTest {
         val input = "Hello World!".encodeToByteArray()
         var inputPos = 0
         val buffer = ReadBuffer.new(4096)
-        val size = buffer.readFrom { chunk ->
-            val available = input.size - inputPos
-            val toRead = minOf(chunk.size, available)
-            if (toRead > 0) {
-                input.copyInto(chunk, 0, inputPos, inputPos + toRead)
-                inputPos += toRead
+        val size =
+            buffer.readFrom { chunk ->
+                val available = input.size - inputPos
+                val toRead = minOf(chunk.size, available)
+                if (toRead > 0) {
+                    input.copyInto(chunk, 0, inputPos, inputPos + toRead)
+                    inputPos += toRead
+                }
+                toRead
             }
-            toRead
-        }
         assertEquals(12, size)
         assertContentEquals("Hello World!".encodeToByteArray(), buffer.chunk())
     }
@@ -30,15 +31,16 @@ class BufferTest {
         var inputPos = 0
         val buf = ReadBuffer.new(4)
 
-        fun readNext(): Int = buf.readFrom { chunk ->
-            val available = input.size - inputPos
-            val toRead = minOf(chunk.size, available)
-            if (toRead > 0) {
-                input.copyInto(chunk, 0, inputPos, inputPos + toRead)
-                inputPos += toRead
+        fun readNext(): Int =
+            buf.readFrom { chunk ->
+                val available = input.size - inputPos
+                val toRead = minOf(chunk.size, available)
+                if (toRead > 0) {
+                    input.copyInto(chunk, 0, inputPos, inputPos + toRead)
+                    inputPos += toRead
+                }
+                toRead
             }
-            toRead
-        }
 
         var size = readNext()
         assertEquals(4, size)

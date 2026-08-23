@@ -35,9 +35,10 @@ class UtilTest {
 
     @Test
     fun testNoBlockCustomNonBlockingError() {
-        val custom = object : RuntimeException("blocking"), NonBlockingError {
-            override fun intoNonBlocking(): Throwable? = null
-        }
+        val custom =
+            object : RuntimeException("blocking"), NonBlockingError {
+                override fun intoNonBlocking(): Throwable? = null
+            }
         val res: Result<Int> = Result.failure(custom)
         val noBlocked = res.noBlock()
         assertTrue(noBlocked.isSuccess)
