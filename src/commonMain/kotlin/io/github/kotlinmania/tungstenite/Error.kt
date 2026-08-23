@@ -7,6 +7,9 @@ import io.github.kotlinmania.tungstenite.protocol.frame.Data
 /** Result type of Tungstenite library calls. */
 public typealias TungsteniteResult<T> = Result<T>
 
+/** Type alias for WebSocket errors. */
+public typealias Error = TungsteniteException
+
 /** Possible WebSocket errors. */
 public sealed class TungsteniteException(
     message: String,
