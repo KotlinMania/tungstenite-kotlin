@@ -55,6 +55,11 @@ public class HeaderMap {
 
     public companion object : TryParse<HeaderMap> {
         /**
+         * Create an empty HeaderMap.
+         */
+        public fun new(): HeaderMap = HeaderMap()
+
+        /**
          * Try to parse headers from the given byte buffer.
          *
          * Returns Ok(null) if partial/incomplete, Err on syntax error or header limit exceeded,
