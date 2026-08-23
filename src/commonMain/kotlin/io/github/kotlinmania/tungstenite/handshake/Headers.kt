@@ -31,30 +31,22 @@ public class HeaderMap {
     /**
      * Get the first value for [name] (case-insensitive) as bytes.
      */
-    public fun get(name: String): ByteArray? {
-        return entries.firstOrNull { it.first.equals(name, ignoreCase = true) }?.second
-    }
+    public fun get(name: String): ByteArray? = entries.firstOrNull { it.first.equals(name, ignoreCase = true) }?.second
 
     /**
      * Get the first value for [name] (case-insensitive) as a UTF-8 string.
      */
-    public fun getString(name: String): String? {
-        return get(name)?.decodeToString()
-    }
+    public fun getString(name: String): String? = get(name)?.decodeToString()
 
     /**
      * Get all values for [name] (case-insensitive) as bytes.
      */
-    public fun getAll(name: String): List<ByteArray> {
-        return entries.filter { it.first.equals(name, ignoreCase = true) }.map { it.second }
-    }
+    public fun getAll(name: String): List<ByteArray> = entries.filter { it.first.equals(name, ignoreCase = true) }.map { it.second }
 
     /**
      * Get all values for [name] (case-insensitive) as UTF-8 strings.
      */
-    public fun getAllString(name: String): List<String> {
-        return getAll(name).map { it.decodeToString() }
-    }
+    public fun getAllString(name: String): List<String> = getAll(name).map { it.decodeToString() }
 
     /**
      * Return all header entries as (name, value) pairs.

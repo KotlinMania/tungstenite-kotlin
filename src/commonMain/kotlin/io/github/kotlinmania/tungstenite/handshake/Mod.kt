@@ -1,8 +1,6 @@
 // port-lint: source handshake/mod.rs
 package io.github.kotlinmania.tungstenite.handshake
 
-import io.github.kotlinmania.tungstenite.ProtocolError
-import io.github.kotlinmania.tungstenite.TungsteniteException
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 
@@ -146,6 +144,7 @@ internal object Sha1 {
         }
 
         val out = ByteArray(20)
+
         fun putInt(v: Int, offset: Int) {
             out[offset] = (v ushr 24).toByte()
             out[offset + 1] = (v ushr 16).toByte()
