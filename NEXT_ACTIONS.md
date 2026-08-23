@@ -4,14 +4,14 @@ Based on AST analysis, here are the concrete next steps.
 
 ## Summary
 
-- **Files Present:** 13/27 (48.1%)
-- **Function parity:** 117/356 matched (target 271) — 32.9%
-- **Class/type parity:** 35/91 matched (target 157) — 38.5%
-- **Combined symbol parity:** 152/447 matched (target 428) — 34.0%
-- **Average inline-code cosine:** 0.31 (function body across 10 matched files)
-- **Average documentation cosine:** 0.73 (doc text across 10 matched files)
-- **Cheat-zeroed Files:** 5
-- **Critical Issues:** 11 files with <0.60 function similarity
+- **Files Present:** 22/50 (44.0%)
+- **Function parity:** 177/399 matched (target 379) — 44.4%
+- **Class/type parity:** 58/101 matched (target 202) — 57.4%
+- **Combined symbol parity:** 235/500 matched (target 581) — 47.0%
+- **Average inline-code cosine:** 0.30 (function body across 19 matched files)
+- **Average documentation cosine:** 0.67 (doc text across 19 matched files)
+- **Cheat-zeroed Files:** 6
+- **Critical Issues:** 18 files with <0.60 function similarity
 
 ## Priority 1: Fix Incomplete High-Dependency Files
 
@@ -29,31 +29,124 @@ Every matched file is listed below with function and type symbol parity.
 
 ### 1. error
 
-- **Target:** `tungstenite.Error [ZERO]`
+- **Target:** `tungstenite.Error [ZERO] [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.00
 - **Dependents:** 6
-- **Priority Score:** 6061110.0
+- **Priority Score:** 6051110.0
 - **Functions:** 0/4 matched (target 51)
 - **Missing functions:** `from`, `error_size`, `tls_error_size`, `protocol_error_size`
-- **Types:** 5/7 matched (target 68)
-- **Missing types:** `Result`, `Error`
+- **Types:** 6/7 matched (target 69)
+- **Missing types:** `Result`
 - **Tests:** 0/3 matched
+- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `error.rs` vs expected `error.rs`
+- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `tests:error.rs` vs expected `error.rs`
+- **Proposed provenance header:** `// port-lint: source error.rs` (current: `// port-lint: source error.rs`)
+- **Proposed provenance header:** `// port-lint: tests error.rs` (current: `// port-lint: tests error.rs`)
+- **Lint issues:** 2
 
-### 2. protocol.mod
+### 2. headers.sec_websocket_extensions
 
-- **Target:** `protocol.Mod [STUB]`
+- **Target:** `headers.SecWebsocketExtensions [PROVENANCE-FALLBACK]`
+- **Similarity:** 0.07
+- **Dependents:** 1
+- **Priority Score:** 1233009.4
+- **Functions:** 4/21 matched (target 17)
+- **Missing functions:** `new`, `iter`, `value`, `decode`, `encode`, `from`, `from_iter`, `into_iter`, `from_str`, `fmt`, `encoded_len`, `write_with`, `test_decode`, `test_encode`, `parse_separate_headers`, `round_trip_complex`, `write_to_exact_encoded_len`
+- **Types:** 3/9 matched (target 4)
+- **Missing types:** `Item`, `IntoIter`, `Err`, `WriteTo`, `CommaDelimited`, `WriteToDyn`
+- **Tests:** 0/5 matched
+- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `extensions/headers/sec_websocket_extensions.rs` vs expected `extensions/headers/sec_websocket_extensions.rs`
+- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `tests:extensions/headers/sec_websocket_extensions.rs` vs expected `extensions/headers/sec_websocket_extensions.rs`
+- **Proposed provenance header:** `// port-lint: source extensions/headers/sec_websocket_extensions.rs` (current: `// port-lint: source extensions/headers/sec_websocket_extensions.rs`)
+- **Proposed provenance header:** `// port-lint: tests extensions/headers/sec_websocket_extensions.rs` (current: `// port-lint: tests extensions/headers/sec_websocket_extensions.rs`)
+- **Lint issues:** 2
+
+### 3. proxy
+
+- **Target:** `tungstenite.Proxy [PROVENANCE-FALLBACK]`
+- **Similarity:** 0.26
+- **Dependents:** 1
+- **Priority Score:** 1224307.4
+- **Functions:** 18/39 matched (target 19)
+- **Missing functions:** `from_env`, `connect_proxy_stream`, `proxy_from_env_for_host`, `get_env_first`, `split_userinfo`, `parse_host_port`, `connect_http_proxy`, `connect_socks5_proxy`, `connect_to_proxy`, `read_connect_response`, `http_connect`, `socks5_handshake`, `socks5_userpass_auth`, `send_socks5_connect`, `new`, `read`, `write`, `flush`, `http_connect_handshake_ok`, `socks5_handshake_no_auth`, `socks5_handshake_with_auth`
+- **Types:** 3/4 matched
+- **Missing types:** `MockStream`
+- **Tests:** 6/13 matched
+- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `proxy.rs` vs expected `proxy.rs`
+- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `tests:proxy.rs` vs expected `proxy.rs`
+- **Proposed provenance header:** `// port-lint: source proxy.rs` (current: `// port-lint: source proxy.rs`)
+- **Proposed provenance header:** `// port-lint: tests proxy.rs` (current: `// port-lint: tests proxy.rs`)
+- **Lint issues:** 2
+
+### 4. deflate.config
+
+- **Target:** `deflate.Config [ZERO] [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.00
 - **Dependents:** 0
-- **Priority Score:** 375110.0
-- **Functions:** 11/44 matched (target 12)
-- **Missing functions:** `from_raw_socket`, `from_raw_socket_with_extensions`, `from_partially_read`, `from_partially_read_with_extensions`, `into_inner`, `get_ref`, `get_mut`, `set_config`, `get_config`, `can_write`, `read`, `send`, `write`, `flush`, `close`, `read_message`, `write_message`, `write_pending`, `new`, `read_message_frame`, `do_close`, `buffer_frame`, `set_additional`, `check_max_size`, `check_connection_reset`, `receive_messages`, `size_limiting_text_fragmented`, `size_limiting_binary`, `per_message_deflate_compression`, `per_message_deflate_decompression`, `per_message_compression_not_recognized`, `per_message_compression_decompress_respects_message_size_limit`, `make_message`
-- **Types:** 3/7 matched (target 3)
-- **Missing types:** `WebSocket`, `WebSocketContext`, `CheckConnectionReset`, `WriteMoc`
+- **Priority Score:** 293610.0
+- **Functions:** 4/29 matched (target 10)
+- **Missing functions:** `new`, `set_max_window_bits`, `set_no_context_takeover`, `as_offer`, `accept_offer`, `accept_response`, `as_extension`, `apply`, `from`, `from_str`, `ordinal`, `name`, `deflate_config_parse_params_valid`, `deflate_rejects_unknown_parameters`, `deflate_rejects_duplicate_parameters`, `deflate_config_minimal_client_offer`, `deflate_server_respects_offer_server_no_context_takeover`, `rejects_unsupported_client_max_window_bits_offer`, `interop`, `make_config`, `rejects_unsupported_client_max_window_bits_response`, `parse_extensions`, `parse_deflates`, `simplest`, `client_multiple_offers`
+- **Types:** 3/7 matched (target 12)
+- **Missing types:** `DeflateConfig`, `DeflateInvalidMaxWindowBits`, `ParamName`, `Err`
+- **Tests:** 0/13 matched
+- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `extensions/compression/deflate/config.rs` vs expected `extensions/compression/deflate/config.rs`
+- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `tests:extensions/compression/deflate/config.rs` vs expected `extensions/compression/deflate/config.rs`
+- **Proposed provenance header:** `// port-lint: source extensions/compression/deflate/config.rs` (current: `// port-lint: source extensions/compression/deflate/config.rs`)
+- **Proposed provenance header:** `// port-lint: tests extensions/compression/deflate/config.rs` (current: `// port-lint: tests extensions/compression/deflate/config.rs`)
+- **Lint issues:** 3
+
+### 5. protocol.mod
+
+- **Target:** `protocol.Mod [STUB] [PROVENANCE-FALLBACK]`
+- **Similarity:** 0.00
+- **Dependents:** 0
+- **Priority Score:** 175110.0
+- **Functions:** 29/44 matched (target 42)
+- **Missing functions:** `from_raw_socket_with_extensions`, `from_partially_read_with_extensions`, `get_config`, `read_message`, `write_message`, `write_pending`, `check_connection_reset`, `receive_messages`, `size_limiting_text_fragmented`, `size_limiting_binary`, `per_message_deflate_compression`, `per_message_deflate_decompression`, `per_message_compression_not_recognized`, `per_message_compression_decompress_respects_message_size_limit`, `make_message`
+- **Types:** 5/7 matched (target 6)
+- **Missing types:** `CheckConnectionReset`, `WriteMoc`
 - **Tests:** 0/8 matched
+- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `protocol/mod.rs` vs expected `protocol/mod.rs`
+- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `tests:protocol/mod.rs` vs expected `protocol/mod.rs`
+- **Proposed provenance header:** `// port-lint: source protocol/mod.rs` (current: `// port-lint: source protocol/mod.rs`)
+- **Proposed provenance header:** `// port-lint: tests protocol/mod.rs` (current: `// port-lint: tests protocol/mod.rs`)
+- **Lint issues:** 2
 
-### 3. frame.utf8
+### 6. handshake.client
 
-- **Target:** `frame.Utf8`
+- **Target:** `handshake.Client [PROVENANCE-FALLBACK]`
+- **Similarity:** 0.14
+- **Dependents:** 0
+- **Priority Score:** 162308.6
+- **Functions:** 4/16 matched (target 15)
+- **Missing functions:** `generate_request`, `extract_subprotocols_from_request`, `verify_response`, `from_httparse`, `random_keys`, `construct_expected`, `request_formatting`, `request_formatting_with_host`, `request_formatting_with_at`, `request_with_compression`, `response_parsing`, `invalid_custom_request`
+- **Types:** 3/7 matched (target 5)
+- **Missing types:** `IncomingData`, `InternalStream`, `FinalResult`, `VerifyData`
+- **Tests:** 0/8 matched
+- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `handshake/client.rs` vs expected `handshake/client.rs`
+- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `tests:handshake/client.rs` vs expected `handshake/client.rs`
+- **Proposed provenance header:** `// port-lint: source handshake/client.rs` (current: `// port-lint: source handshake/client.rs`)
+- **Proposed provenance header:** `// port-lint: tests handshake/client.rs` (current: `// port-lint: tests handshake/client.rs`)
+- **Lint issues:** 2
+
+### 7. handshake.server
+
+- **Target:** `handshake.Server [PROVENANCE-FALLBACK]`
+- **Similarity:** 0.15
+- **Dependents:** 0
+- **Priority Score:** 132008.5
+- **Functions:** 4/11 matched (target 6)
+- **Missing functions:** `create_parts`, `create_response_with_body`, `write_response`, `from_httparse`, `on_request`, `request_parsing`, `request_replying`
+- **Types:** 3/9 matched (target 4)
+- **Missing types:** `Request`, `Response`, `ErrorResponse`, `IncomingData`, `InternalStream`, `FinalResult`
+- **Tests:** 0/2 matched
+- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `handshake/server.rs` vs expected `handshake/server.rs`
+- **Proposed provenance header:** `// port-lint: source handshake/server.rs` (current: `// port-lint: source handshake/server.rs`)
+- **Lint issues:** 1
+
+### 8. frame.utf8
+
+- **Target:** `frame.Utf8 [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.24
 - **Dependents:** 0
 - **Priority Score:** 101707.6
@@ -62,10 +155,29 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 1/3 matched (target 2)
 - **Missing types:** `Target`, `Error`
 - **Tests:** 1/1 matched
+- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `protocol/frame/utf8.rs` vs expected `protocol/frame/utf8.rs`
+- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `tests:protocol/frame/utf8.rs` vs expected `protocol/frame/utf8.rs`
+- **Proposed provenance header:** `// port-lint: source protocol/frame/utf8.rs` (current: `// port-lint: source protocol/frame/utf8.rs`)
+- **Proposed provenance header:** `// port-lint: tests protocol/frame/utf8.rs` (current: `// port-lint: tests protocol/frame/utf8.rs`)
+- **Lint issues:** 2
 
-### 4. frame.coding
+### 9. client
 
-- **Target:** `frame.Coding`
+- **Target:** `tungstenite.Client [PROVENANCE-FALLBACK]`
+- **Similarity:** 0.13
+- **Dependents:** 0
+- **Priority Score:** 91508.7
+- **Functions:** 4/13 matched (target 6)
+- **Missing functions:** `connect_with_config`, `try_client_handshake`, `create_request`, `connect`, `connect_to_some`, `connect_stream`, `new`, `with_header`, `with_sub_protocol`
+- **Types:** 2/2 matched
+- **Missing types:** _none_
+- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `client.rs` vs expected `client.rs`
+- **Proposed provenance header:** `// port-lint: source client.rs` (current: `// port-lint: source client.rs`)
+- **Lint issues:** 1
+
+### 10. frame.coding
+
+- **Target:** `frame.Coding [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.06
 - **Dependents:** 0
 - **Priority Score:** 61109.4
@@ -74,10 +186,29 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 4/4 matched (target 29)
 - **Missing types:** _none_
 - **Tests:** 0/4 matched
+- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `protocol/frame/coding.rs` vs expected `protocol/frame/coding.rs`
+- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `tests:protocol/frame/coding.rs` vs expected `protocol/frame/coding.rs`
+- **Proposed provenance header:** `// port-lint: source protocol/frame/coding.rs` (current: `// port-lint: source protocol/frame/coding.rs`)
+- **Proposed provenance header:** `// port-lint: tests protocol/frame/coding.rs` (current: `// port-lint: tests protocol/frame/coding.rs`)
+- **Lint issues:** 2
 
-### 5. frame.mod
+### 11. stream
 
-- **Target:** `frame.Mod [STUB]`
+- **Target:** `tungstenite.Stream [PROVENANCE-FALLBACK]`
+- **Similarity:** 0.00
+- **Dependents:** 0
+- **Priority Score:** 60910.0
+- **Functions:** 0/5 matched (target 1)
+- **Missing functions:** `set_nodelay`, `fmt`, `read`, `write`, `flush`
+- **Types:** 3/4 matched (target 6)
+- **Missing types:** `RustlsStreamDebug`
+- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `stream.rs` vs expected `stream.rs`
+- **Proposed provenance header:** `// port-lint: source stream.rs` (current: `// port-lint: source stream.rs`)
+- **Lint issues:** 1
+
+### 12. frame.mod
+
+- **Target:** `frame.Mod [STUB] [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.00
 - **Dependents:** 0
 - **Priority Score:** 52110.0
@@ -86,10 +217,15 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 2/2 matched (target 5)
 - **Missing types:** _none_
 - **Tests:** 0/4 matched
+- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `protocol/frame/mod.rs` vs expected `protocol/frame/mod.rs`
+- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `tests:protocol/frame/mod.rs` vs expected `protocol/frame/mod.rs`
+- **Proposed provenance header:** `// port-lint: source protocol/frame/mod.rs` (current: `// port-lint: source protocol/frame/mod.rs`)
+- **Proposed provenance header:** `// port-lint: tests protocol/frame/mod.rs` (current: `// port-lint: tests protocol/frame/mod.rs`)
+- **Lint issues:** 2
 
-### 6. handshake.mod
+### 13. handshake.mod
 
-- **Target:** `handshake.Mod [STUB]`
+- **Target:** `handshake.Mod [STUB] [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.00
 - **Dependents:** 0
 - **Priority Score:** 31210.0
@@ -98,10 +234,15 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 4/4 matched (target 10)
 - **Missing types:** _none_
 - **Tests:** 1/1 matched
+- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `handshake/mod.rs` vs expected `handshake/mod.rs`
+- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `tests:handshake/mod.rs` vs expected `handshake/mod.rs`
+- **Proposed provenance header:** `// port-lint: source handshake/mod.rs` (current: `// port-lint: source handshake/mod.rs`)
+- **Proposed provenance header:** `// port-lint: tests handshake/mod.rs` (current: `// port-lint: tests handshake/mod.rs`)
+- **Lint issues:** 2
 
-### 7. frame.frame
+### 14. frame.frame
 
-- **Target:** `frame.Frame`
+- **Target:** `frame.Frame [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.64
 - **Dependents:** 0
 - **Priority Score:** 23203.6
@@ -110,10 +251,15 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 4/4 matched (target 8)
 - **Missing types:** _none_
 - **Tests:** 1/1 matched
+- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `protocol/frame/frame.rs` vs expected `protocol/frame/frame.rs`
+- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `tests:protocol/frame/frame.rs` vs expected `protocol/frame/frame.rs`
+- **Proposed provenance header:** `// port-lint: source protocol/frame/frame.rs` (current: `// port-lint: source protocol/frame/frame.rs`)
+- **Proposed provenance header:** `// port-lint: tests protocol/frame/frame.rs` (current: `// port-lint: tests protocol/frame/frame.rs`)
+- **Lint issues:** 2
 
-### 8. protocol.message
+### 15. protocol.message
 
-- **Target:** `protocol.Message`
+- **Target:** `protocol.Message [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.57
 - **Dependents:** 0
 - **Priority Score:** 23104.3
@@ -122,10 +268,15 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 4/5 matched (target 11)
 - **Missing types:** `IncompleteMessageCollector`
 - **Tests:** 6/6 matched
+- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `protocol/message.rs` vs expected `protocol/message.rs`
+- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `tests:protocol/message.rs` vs expected `protocol/message.rs`
+- **Proposed provenance header:** `// port-lint: source protocol/message.rs` (current: `// port-lint: source protocol/message.rs`)
+- **Proposed provenance header:** `// port-lint: tests protocol/message.rs` (current: `// port-lint: tests protocol/message.rs`)
+- **Lint issues:** 2
 
-### 9. buffer
+### 16. buffer
 
-- **Target:** `tungstenite.Buffer`
+- **Target:** `tungstenite.Buffer [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.41
 - **Dependents:** 0
 - **Priority Score:** 21505.9
@@ -134,10 +285,15 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 1/1 matched (target 2)
 - **Missing types:** _none_
 - **Tests:** 2/2 matched
+- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `buffer.rs` vs expected `buffer.rs`
+- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `tests:buffer.rs` vs expected `buffer.rs`
+- **Proposed provenance header:** `// port-lint: source buffer.rs` (current: `// port-lint: source buffer.rs`)
+- **Proposed provenance header:** `// port-lint: tests buffer.rs` (current: `// port-lint: tests buffer.rs`)
+- **Lint issues:** 2
 
-### 10. handshake.headers
+### 17. handshake.headers
 
-- **Target:** `handshake.Headers`
+- **Target:** `handshake.Headers [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.40
 - **Dependents:** 0
 - **Priority Score:** 20606.0
@@ -146,10 +302,15 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 0/1 matched (target 2)
 - **Missing types:** `FromHttparse`
 - **Tests:** 3/3 matched
+- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `handshake/headers.rs` vs expected `handshake/headers.rs`
+- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `tests:handshake/headers.rs` vs expected `handshake/headers.rs`
+- **Proposed provenance header:** `// port-lint: source handshake/headers.rs` (current: `// port-lint: source handshake/headers.rs`)
+- **Proposed provenance header:** `// port-lint: tests handshake/headers.rs` (current: `// port-lint: tests handshake/headers.rs`)
+- **Lint issues:** 2
 
-### 11. util
+### 18. util
 
-- **Target:** `tungstenite.Util`
+- **Target:** `tungstenite.Util [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.15
 - **Dependents:** 0
 - **Priority Score:** 20508.5
@@ -157,10 +318,15 @@ Every matched file is listed below with function and type symbol parity.
 - **Missing functions:** _none_
 - **Types:** 1/3 matched (target 2)
 - **Missing types:** `NonBlockingResult`, `Result`
+- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `util.rs` vs expected `util.rs`
+- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `tests:util.rs` vs expected `util.rs`
+- **Proposed provenance header:** `// port-lint: source util.rs` (current: `// port-lint: source util.rs`)
+- **Proposed provenance header:** `// port-lint: tests util.rs` (current: `// port-lint: tests util.rs`)
+- **Lint issues:** 2
 
-### 12. handshake.machine
+### 19. handshake.machine
 
-- **Target:** `handshake.Machine`
+- **Target:** `handshake.Machine [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.66
 - **Dependents:** 0
 - **Priority Score:** 11303.4
@@ -168,10 +334,27 @@ Every matched file is listed below with function and type symbol parity.
 - **Missing functions:** `single_round`
 - **Types:** 6/6 matched (target 14)
 - **Missing types:** _none_
+- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `handshake/machine.rs` vs expected `handshake/machine.rs`
+- **Proposed provenance header:** `// port-lint: source handshake/machine.rs` (current: `// port-lint: source handshake/machine.rs`)
+- **Lint issues:** 1
 
-### 13. frame.mask
+### 20. lib
 
-- **Target:** `frame.Mask [ZERO]`
+- **Target:** `tungstenite.Lib [PROVENANCE-FALLBACK]`
+- **Similarity:** 1.00
+- **Dependents:** 0
+- **Priority Score:** 10100.0
+- **Functions:** 0/0 matched
+- **Missing functions:** _none_
+- **Types:** 0/1 matched (target 4)
+- **Missing types:** `ReadBuffer`
+- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `lib.rs` vs expected `lib.rs`
+- **Proposed provenance header:** `// port-lint: source lib.rs` (current: `// port-lint: source lib.rs`)
+- **Lint issues:** 1
+
+### 21. frame.mask
+
+- **Target:** `frame.Mask [ZERO] [PROVENANCE-FALLBACK]`
 - **Similarity:** 0.00
 - **Dependents:** 0
 - **Priority Score:** 510.0
@@ -180,6 +363,25 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 0/0 matched (target 1)
 - **Missing types:** _none_
 - **Tests:** 1/1 matched
+- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `protocol/frame/mask.rs` vs expected `protocol/frame/mask.rs`
+- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `tests:protocol/frame/mask.rs` vs expected `protocol/frame/mask.rs`
+- **Proposed provenance header:** `// port-lint: source protocol/frame/mask.rs` (current: `// port-lint: source protocol/frame/mask.rs`)
+- **Proposed provenance header:** `// port-lint: tests protocol/frame/mask.rs` (current: `// port-lint: tests protocol/frame/mask.rs`)
+- **Lint issues:** 2
+
+### 22. server
+
+- **Target:** `tungstenite.Server [PROVENANCE-FALLBACK]`
+- **Similarity:** 0.91
+- **Dependents:** 0
+- **Priority Score:** 400.9
+- **Functions:** 4/4 matched
+- **Missing functions:** _none_
+- **Types:** 0/0 matched
+- **Missing types:** _none_
+- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `server.rs` vs expected `server.rs`
+- **Proposed provenance header:** `// port-lint: source server.rs` (current: `// port-lint: source server.rs`)
+- **Lint issues:** 1
 
 ## Success Criteria
 
@@ -201,9 +403,8 @@ do not treat them as the next implementation target by default.
 
 | Source | Expected target | Deps | Source path | Expected path |
 |--------|-----------------|------|-------------|---------------|
-| `deflate.mod` | `extensions.compression.deflate.Mod` | 0 | `extensions/compression/deflate/mod.rs` | `extensions/compression/deflate/Mod.kt` |
-| `compression.mod` | `extensions.compression.Mod` | 0 | `extensions/compression/mod.rs` | `extensions/compression/Mod.kt` |
-| `headers.mod` | `extensions.headers.Mod` | 0 | `extensions/headers/mod.rs` | `extensions/headers/Mod.kt` |
-| `extensions.mod` | `extensions.Mod` | 0 | `extensions/mod.rs` | `extensions/Mod.kt` |
-| `lib` | `Lib` | 0 | `lib.rs` | `Lib.kt` |
+| `deflate.mod` | `extensions.compression.deflate.Mod` | 0 | `src/extensions/compression/deflate/mod.rs` | `extensions/compression/deflate/Mod.kt` |
+| `compression.mod` | `extensions.compression.Mod` | 0 | `src/extensions/compression/mod.rs` | `extensions/compression/Mod.kt` |
+| `headers.mod` | `extensions.headers.Mod` | 0 | `src/extensions/headers/mod.rs` | `extensions/headers/Mod.kt` |
+| `extensions.mod` | `extensions.Mod` | 0 | `src/extensions/mod.rs` | `extensions/Mod.kt` |
 
