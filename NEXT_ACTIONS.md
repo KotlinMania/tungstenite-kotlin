@@ -4,14 +4,14 @@ Based on AST analysis, here are the concrete next steps.
 
 ## Summary
 
-- **Files Present:** 8/27 (29.6%)
-- **Function parity:** 69/349 matched (target 185) — 19.8%
-- **Class/type parity:** 21/87 matched (target 122) — 24.1%
-- **Combined symbol parity:** 90/436 matched (target 307) — 20.6%
-- **Average inline-code cosine:** 0.23 (function body across 6 matched files)
-- **Average documentation cosine:** 0.76 (doc text across 6 matched files)
-- **Cheat-zeroed Files:** 4
-- **Critical Issues:** 8 files with <0.60 function similarity
+- **Files Present:** 13/27 (48.1%)
+- **Function parity:** 92/356 matched (target 234) — 25.8%
+- **Class/type parity:** 33/91 matched (target 152) — 36.3%
+- **Combined symbol parity:** 125/447 matched (target 386) — 28.0%
+- **Average inline-code cosine:** 0.27 (function body across 10 matched files)
+- **Average documentation cosine:** 0.73 (doc text across 10 matched files)
+- **Cheat-zeroed Files:** 5
+- **Critical Issues:** 13 files with <0.60 function similarity
 
 ## Priority 1: Fix Incomplete High-Dependency Files
 
@@ -33,7 +33,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Similarity:** 0.00
 - **Dependents:** 6
 - **Priority Score:** 6061110.0
-- **Functions:** 0/4 matched (target 49)
+- **Functions:** 0/4 matched (target 51)
 - **Missing functions:** `from`, `error_size`, `tls_error_size`, `protocol_error_size`
 - **Types:** 5/7 matched (target 68)
 - **Missing types:** `Result`, `Error`
@@ -75,7 +75,19 @@ Every matched file is listed below with function and type symbol parity.
 - **Missing types:** `Target`, `Error`
 - **Tests:** 1/1 matched
 
-### 5. frame.coding
+### 5. handshake.mod
+
+- **Target:** `handshake.Mod [STUB]`
+- **Similarity:** 0.00
+- **Dependents:** 0
+- **Priority Score:** 61210.0
+- **Functions:** 2/8 matched (target 6)
+- **Missing functions:** `get_ref`, `get_mut`, `handshake`, `fmt`, `from`, `version_as_str`
+- **Types:** 4/4 matched (target 10)
+- **Missing types:** _none_
+- **Tests:** 1/1 matched
+
+### 6. frame.coding
 
 - **Target:** `frame.Coding`
 - **Similarity:** 0.06
@@ -87,7 +99,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Missing types:** _none_
 - **Tests:** 0/4 matched
 
-### 6. frame.frame
+### 7. frame.frame
 
 - **Target:** `frame.Frame`
 - **Similarity:** 0.57
@@ -99,7 +111,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Missing types:** _none_
 - **Tests:** 1/1 matched
 
-### 7. protocol.message
+### 8. protocol.message
 
 - **Target:** `protocol.Message`
 - **Similarity:** 0.53
@@ -111,7 +123,53 @@ Every matched file is listed below with function and type symbol parity.
 - **Missing types:** `IncompleteMessageCollector`
 - **Tests:** 6/6 matched
 
-### 8. frame.mask
+### 9. handshake.machine
+
+- **Target:** `handshake.Machine`
+- **Similarity:** 0.36
+- **Dependents:** 0
+- **Priority Score:** 41306.4
+- **Functions:** 3/7 matched
+- **Missing functions:** `get_ref`, `get_mut`, `single_round`, `new`
+- **Types:** 6/6 matched (target 14)
+- **Missing types:** _none_
+
+### 10. buffer
+
+- **Target:** `tungstenite.Buffer`
+- **Similarity:** 0.41
+- **Dependents:** 0
+- **Priority Score:** 21505.9
+- **Functions:** 12/14 matched (target 17)
+- **Missing functions:** `as_cursor`, `as_cursor_mut`
+- **Types:** 1/1 matched (target 2)
+- **Missing types:** _none_
+- **Tests:** 2/2 matched
+
+### 11. handshake.headers
+
+- **Target:** `handshake.Headers`
+- **Similarity:** 0.40
+- **Dependents:** 0
+- **Priority Score:** 20606.0
+- **Functions:** 4/5 matched (target 11)
+- **Missing functions:** `from_httparse`
+- **Types:** 0/1 matched (target 2)
+- **Missing types:** `FromHttparse`
+- **Tests:** 3/3 matched
+
+### 12. util
+
+- **Target:** `tungstenite.Util`
+- **Similarity:** 0.15
+- **Dependents:** 0
+- **Priority Score:** 20508.5
+- **Functions:** 2/2 matched (target 6)
+- **Missing functions:** _none_
+- **Types:** 1/3 matched (target 2)
+- **Missing types:** `NonBlockingResult`, `Result`
+
+### 13. frame.mask
 
 - **Target:** `frame.Mask [ZERO]`
 - **Similarity:** 0.00
@@ -147,6 +205,5 @@ do not treat them as the next implementation target by default.
 | `compression.mod` | `extensions.compression.Mod` | 0 | `extensions/compression/mod.rs` | `extensions/compression/Mod.kt` |
 | `headers.mod` | `extensions.headers.Mod` | 0 | `extensions/headers/mod.rs` | `extensions/headers/Mod.kt` |
 | `extensions.mod` | `extensions.Mod` | 0 | `extensions/mod.rs` | `extensions/Mod.kt` |
-| `handshake.mod` | `handshake.Mod` | 0 | `handshake/mod.rs` | `handshake/Mod.kt` |
 | `lib` | `Lib` | 0 | `lib.rs` | `Lib.kt` |
 

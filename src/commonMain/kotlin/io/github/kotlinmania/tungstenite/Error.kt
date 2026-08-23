@@ -11,7 +11,9 @@ public typealias TungsteniteResult<T> = Result<T>
 public sealed class TungsteniteException(
     message: String,
     cause: Throwable? = null,
-) : Exception(message, cause) {
+) : Exception(message, cause), NonBlockingError {
+    override fun intoNonBlocking(): Throwable? = this
+
     /** WebSocket connection closed normally. */
     public class ConnectionClosed : TungsteniteException("Connection closed normally")
 
@@ -22,7 +24,10 @@ public sealed class TungsteniteException(
     public class Io(
         message: String,
         cause: Throwable? = null,
-    ) : TungsteniteException("IO error: $message", cause)
+    ) : TungsteniteException("IO error: $message", cause) {
+        override fun intoNonBlocking(): Throwable? =
+            if (message?.contains("WouldBlock", ignoreCase = true) == true) null else this
+    }
 
     /** TLS error. */
     public class Tls(
