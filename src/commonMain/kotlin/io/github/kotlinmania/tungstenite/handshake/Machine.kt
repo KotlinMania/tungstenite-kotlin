@@ -136,7 +136,19 @@ public class HandshakeMachine<Stream>(
     public val stream: Stream,
     public var state: HandshakeState,
 ) {
+    /** Returns the inner stream reference. */
+    public fun getRef(): Stream = stream
+
+    /** Returns the inner stream mutable reference. */
+    public fun getMut(): Stream = stream
+
     public companion object {
+        /**
+         * Create a new HandshakeMachine.
+         */
+        public fun <Stream> new(stream: Stream, state: HandshakeState): HandshakeMachine<Stream> =
+            HandshakeMachine(stream, state)
+
         /**
          * Start reading data from the peer.
          */

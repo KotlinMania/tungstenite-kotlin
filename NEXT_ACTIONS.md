@@ -5,13 +5,13 @@ Based on AST analysis, here are the concrete next steps.
 ## Summary
 
 - **Files Present:** 13/27 (48.1%)
-- **Function parity:** 92/356 matched (target 234) — 25.8%
-- **Class/type parity:** 33/91 matched (target 152) — 36.3%
-- **Combined symbol parity:** 125/447 matched (target 386) — 28.0%
-- **Average inline-code cosine:** 0.27 (function body across 10 matched files)
+- **Function parity:** 117/356 matched (target 271) — 32.9%
+- **Class/type parity:** 35/91 matched (target 157) — 38.5%
+- **Combined symbol parity:** 152/447 matched (target 428) — 34.0%
+- **Average inline-code cosine:** 0.31 (function body across 10 matched files)
 - **Average documentation cosine:** 0.73 (doc text across 10 matched files)
 - **Cheat-zeroed Files:** 5
-- **Critical Issues:** 13 files with <0.60 function similarity
+- **Critical Issues:** 11 files with <0.60 function similarity
 
 ## Priority 1: Fix Incomplete High-Dependency Files
 
@@ -51,19 +51,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Missing types:** `WebSocket`, `WebSocketContext`, `CheckConnectionReset`, `WriteMoc`
 - **Tests:** 0/8 matched
 
-### 3. frame.mod
-
-- **Target:** `frame.Mod [STUB]`
-- **Similarity:** 0.00
-- **Dependents:** 0
-- **Priority Score:** 212110.0
-- **Functions:** 0/19 matched (target 0)
-- **Missing functions:** `new`, `from_partially_read`, `into_inner`, `get_ref`, `get_mut`, `read`, `send`, `write`, `flush`, `set_max_out_buffer_len`, `set_out_buffer_write_len`, `read_frame`, `read_in`, `buffer_frame`, `write_out_buffer`, `read_frames`, `write_frames`, `parse_overflow`, `size_limit_hit`
-- **Types:** 0/2 matched (target 0)
-- **Missing types:** `FrameSocket`, `FrameCodec`
-- **Tests:** 0/4 matched
-
-### 4. frame.utf8
+### 3. frame.utf8
 
 - **Target:** `frame.Utf8`
 - **Similarity:** 0.24
@@ -75,19 +63,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Missing types:** `Target`, `Error`
 - **Tests:** 1/1 matched
 
-### 5. handshake.mod
-
-- **Target:** `handshake.Mod [STUB]`
-- **Similarity:** 0.00
-- **Dependents:** 0
-- **Priority Score:** 61210.0
-- **Functions:** 2/8 matched (target 6)
-- **Missing functions:** `get_ref`, `get_mut`, `handshake`, `fmt`, `from`, `version_as_str`
-- **Types:** 4/4 matched (target 10)
-- **Missing types:** _none_
-- **Tests:** 1/1 matched
-
-### 6. frame.coding
+### 4. frame.coding
 
 - **Target:** `frame.Coding`
 - **Similarity:** 0.06
@@ -99,14 +75,38 @@ Every matched file is listed below with function and type symbol parity.
 - **Missing types:** _none_
 - **Tests:** 0/4 matched
 
+### 5. frame.mod
+
+- **Target:** `frame.Mod [STUB]`
+- **Similarity:** 0.00
+- **Dependents:** 0
+- **Priority Score:** 52110.0
+- **Functions:** 14/19 matched (target 23)
+- **Missing functions:** `read_in`, `read_frames`, `write_frames`, `parse_overflow`, `size_limit_hit`
+- **Types:** 2/2 matched (target 5)
+- **Missing types:** _none_
+- **Tests:** 0/4 matched
+
+### 6. handshake.mod
+
+- **Target:** `handshake.Mod [STUB]`
+- **Similarity:** 0.00
+- **Dependents:** 0
+- **Priority Score:** 31210.0
+- **Functions:** 5/8 matched (target 9)
+- **Missing functions:** `handshake`, `fmt`, `from`
+- **Types:** 4/4 matched (target 10)
+- **Missing types:** _none_
+- **Tests:** 1/1 matched
+
 ### 7. frame.frame
 
 - **Target:** `frame.Frame`
-- **Similarity:** 0.57
+- **Similarity:** 0.64
 - **Dependents:** 0
-- **Priority Score:** 53204.3
-- **Functions:** 23/28 matched (target 34)
-- **Missing functions:** `fmt`, `default`, `parse_internal`, `header_mut`, `compressed_message`
+- **Priority Score:** 23203.6
+- **Functions:** 26/28 matched (target 39)
+- **Missing functions:** `fmt`, `parse_internal`
 - **Types:** 4/4 matched (target 8)
 - **Missing types:** _none_
 - **Tests:** 1/1 matched
@@ -114,27 +114,16 @@ Every matched file is listed below with function and type symbol parity.
 ### 8. protocol.message
 
 - **Target:** `protocol.Message`
-- **Similarity:** 0.53
+- **Similarity:** 0.57
 - **Dependents:** 0
-- **Priority Score:** 43104.7
-- **Functions:** 23/26 matched (target 42)
-- **Missing functions:** `new`, `new_compressed`, `fmt`
+- **Priority Score:** 23104.3
+- **Functions:** 25/26 matched (target 44)
+- **Missing functions:** `fmt`
 - **Types:** 4/5 matched (target 11)
 - **Missing types:** `IncompleteMessageCollector`
 - **Tests:** 6/6 matched
 
-### 9. handshake.machine
-
-- **Target:** `handshake.Machine`
-- **Similarity:** 0.36
-- **Dependents:** 0
-- **Priority Score:** 41306.4
-- **Functions:** 3/7 matched
-- **Missing functions:** `get_ref`, `get_mut`, `single_round`, `new`
-- **Types:** 6/6 matched (target 14)
-- **Missing types:** _none_
-
-### 10. buffer
+### 9. buffer
 
 - **Target:** `tungstenite.Buffer`
 - **Similarity:** 0.41
@@ -146,19 +135,19 @@ Every matched file is listed below with function and type symbol parity.
 - **Missing types:** _none_
 - **Tests:** 2/2 matched
 
-### 11. handshake.headers
+### 10. handshake.headers
 
 - **Target:** `handshake.Headers`
 - **Similarity:** 0.40
 - **Dependents:** 0
 - **Priority Score:** 20606.0
-- **Functions:** 4/5 matched (target 11)
+- **Functions:** 4/5 matched (target 12)
 - **Missing functions:** `from_httparse`
 - **Types:** 0/1 matched (target 2)
 - **Missing types:** `FromHttparse`
 - **Tests:** 3/3 matched
 
-### 12. util
+### 11. util
 
 - **Target:** `tungstenite.Util`
 - **Similarity:** 0.15
@@ -168,6 +157,17 @@ Every matched file is listed below with function and type symbol parity.
 - **Missing functions:** _none_
 - **Types:** 1/3 matched (target 2)
 - **Missing types:** `NonBlockingResult`, `Result`
+
+### 12. handshake.machine
+
+- **Target:** `handshake.Machine`
+- **Similarity:** 0.66
+- **Dependents:** 0
+- **Priority Score:** 11303.4
+- **Functions:** 6/7 matched (target 10)
+- **Missing functions:** `single_round`
+- **Types:** 6/6 matched (target 14)
+- **Missing types:** _none_
 
 ### 13. frame.mask
 

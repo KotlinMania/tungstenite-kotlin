@@ -47,7 +47,26 @@ public sealed class HandshakeError<out Role> {
 public class MidHandshake<Role>(
     public val role: Role,
     public var machine: HandshakeMachine<*>,
-)
+) {
+    /** Allow access to machine. */
+    public fun getRef(): HandshakeMachine<*> = machine
+
+    /** Allow mutable access to machine. */
+    public fun getMut(): HandshakeMachine<*> = machine
+}
+
+/**
+ * Convert HTTP version string to canonical representation or validate it.
+ */
+public fun versionAsStr(ver: String): String =
+    when (ver) {
+        "HTTP/0.9" -> "HTTP/0.9"
+        "HTTP/1.0" -> "HTTP/1.0"
+        "HTTP/1.1" -> "HTTP/1.1"
+        else -> throw io.github.kotlinmania.tungstenite.TungsteniteException.Protocol(
+            io.github.kotlinmania.tungstenite.ProtocolError.WrongHttpVersion,
+        )
+    }
 
 /**
  * Derive the `Sec-WebSocket-Accept` response header from a `Sec-WebSocket-Key` request header.

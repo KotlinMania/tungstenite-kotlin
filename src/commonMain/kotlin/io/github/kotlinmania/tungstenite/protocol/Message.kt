@@ -76,6 +76,14 @@ public class IncompleteMessage(
             MessageType.Binary -> Message.binary(binaryCollector!!.toByteArray())
             MessageType.Text -> Message.text(stringCollector!!.intoString())
         }
+
+    public companion object {
+        public fun new(messageType: MessageType): IncompleteMessage =
+            IncompleteMessage(messageType)
+
+        public fun newCompressed(messageType: MessageType): IncompleteMessage =
+            IncompleteMessage(messageType, compressed = true)
+    }
 }
 
 /** An enum / sealed class representing the various forms of a WebSocket message. */

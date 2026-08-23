@@ -127,6 +127,8 @@ public data class FrameHeader(
     public companion object {
         public const val MAX_SIZE: Int = 14
 
+        public fun default(): FrameHeader = FrameHeader()
+
         /**
          * Parse a header from a byte slice.
          * Returns `(header, payloadLength, bytesConsumed)` or `null` if insufficient data.
@@ -276,7 +278,11 @@ public data class Frame(
         return "\n<FRAME>\nfinal: ${header.isFinal}\nreserved: ${header.rsv1} ${header.rsv2} ${header.rsv3}\nopcode: ${header.opcode}\nlength: ${len()}\npayload length: ${payload.len()}\npayload: 0x$hexPayload\n"
     }
 
+    public fun headerMut(): FrameHeader = header
+
     public companion object {
+        public fun default(): Frame = Frame(FrameHeader.default(), Bytes.new())
+
         public fun message(data: Bytes, opcode: OpCode, isFinal: Boolean = true): Frame {
             require(opcode is OpCode.Data) { "Invalid opcode for data frame." }
             return Frame(FrameHeader(isFinal = isFinal, opcode = opcode), data)
@@ -284,6 +290,14 @@ public data class Frame(
 
         public fun message(data: ByteArray, opcode: OpCode, isFinal: Boolean = true): Frame =
             message(Bytes.from(data), opcode, isFinal)
+
+        public fun compressedMessage(data: Bytes, opcode: OpCode, isFinal: Boolean = true): Frame {
+            require(opcode is OpCode.Data) { "Invalid opcode for data frame." }
+            return Frame(FrameHeader(isFinal = isFinal, rsv1 = true, opcode = opcode), data)
+        }
+
+        public fun compressedMessage(data: ByteArray, opcode: OpCode, isFinal: Boolean = true): Frame =
+            compressedMessage(Bytes.from(data), opcode, isFinal)
 
         public fun pong(data: Bytes): Frame =
             Frame(FrameHeader(opcode = OpCode.Control(Control.Pong)), data)
