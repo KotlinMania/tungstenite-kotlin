@@ -1,14 +1,10 @@
 // port-lint: source protocol/frame/coding.rs
-@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 
 package io.github.kotlinmania.tungstenite.protocol.frame
-
-import kotlin.native.HiddenFromObjC
 
 // Various codes defined in RFC 6455.
 
 /** WebSocket message opcode as in RFC 6455. */
-@HiddenFromObjC
 public sealed class OpCode {
     /** Data (text or binary). */
     public data class Data(
@@ -67,7 +63,6 @@ public sealed class OpCode {
 }
 
 /** Data opcodes as in RFC 6455 */
-@HiddenFromObjC
 public sealed class Data {
     /** 0x0 denotes a continuation frame */
     public object Continue : Data() {
@@ -93,7 +88,6 @@ public sealed class Data {
 }
 
 /** Control opcodes as in RFC 6455 */
-@HiddenFromObjC
 public sealed class Control {
     /** 0x8 denotes a connection close */
     public object Close : Control() {
@@ -119,7 +113,6 @@ public sealed class Control {
 }
 
 /** Status code used to indicate why an endpoint is closing the WebSocket connection. */
-@HiddenFromObjC
 public sealed class CloseCode {
     /**
      * Indicates a normal closure, meaning that the purpose for
