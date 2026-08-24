@@ -207,7 +207,7 @@ public class WebSocketContext(
     ) {
         state.checkNotTerminated()
         if (!state.isActive()) {
-            throw TungsteniteException.Protocol(ProtocolError.SendAfterClosing)
+            throw TungsteniteException.ProtocolViolation(ProtocolError.SendAfterClosing)
         }
 
         val frameToSend =
@@ -270,16 +270,16 @@ public class WebSocketContext(
             ) ?: return null
 
         if (!state.canRead()) {
-            throw TungsteniteException.Protocol(ProtocolError.ReceivedAfterClosing)
+            throw TungsteniteException.ProtocolViolation(ProtocolError.ReceivedAfterClosing)
         }
 
-        val hdr = f.header()
+        val hdr = f.header
         if (hdr.rsv1 || hdr.rsv2 || hdr.rsv3) {
-            throw TungsteniteException.Protocol(ProtocolError.NonZeroReservedBits)
+            throw TungsteniteException.ProtocolViolation(ProtocolError.NonZeroReservedBits)
         }
 
         if (role == Role.Client && f.isMasked()) {
-            throw TungsteniteException.Protocol(ProtocolError.MaskedFrameFromServer)
+            throw TungsteniteException.ProtocolViolation(ProtocolError.MaskedFrameFromServer)
         }
 
         return when (val op = hdr.opcode) {
@@ -297,7 +297,7 @@ public class WebSocketContext(
                         Message.Ping(payload)
                     }
                     is OpCtl.Pong -> Message.Pong(f.intoPayload())
-                    is OpCtl.Reserved -> throw TungsteniteException.Protocol(ProtocolError.UnknownControlFrameType(ctl.value))
+                    is OpCtl.Reserved -> throw TungsteniteException.ProtocolViolation(ProtocolError.UnknownControlFrameType(ctl.value))
                 }
             }
             is OpCode.Data -> {
@@ -307,7 +307,7 @@ public class WebSocketContext(
                     is OpData.Continue -> {
                         val inc =
                             incomplete
-                                ?: throw TungsteniteException.Protocol(ProtocolError.UnexpectedContinueFrame)
+                                ?: throw TungsteniteException.ProtocolViolation(ProtocolError.UnexpectedContinueFrame)
                         inc.extend(payload, config.maxMessageSize)
                         if (fin) {
                             incomplete = null
@@ -318,7 +318,7 @@ public class WebSocketContext(
                     }
                     is OpData.Text -> {
                         if (incomplete != null) {
-                            throw TungsteniteException.Protocol(ProtocolError.ExpectedFragment(OpData.Text))
+                            throw TungsteniteException.ProtocolViolation(ProtocolError.ExpectedFragment(OpData.Text))
                         }
                         if (fin) {
                             checkMaxSize(payload.size.toLong(), config.maxMessageSize)
@@ -332,7 +332,7 @@ public class WebSocketContext(
                     }
                     is OpData.Binary -> {
                         if (incomplete != null) {
-                            throw TungsteniteException.Protocol(ProtocolError.ExpectedFragment(OpData.Binary))
+                            throw TungsteniteException.ProtocolViolation(ProtocolError.ExpectedFragment(OpData.Binary))
                         }
                         if (fin) {
                             checkMaxSize(payload.size.toLong(), config.maxMessageSize)
@@ -344,7 +344,7 @@ public class WebSocketContext(
                             null
                         }
                     }
-                    is OpData.Reserved -> throw TungsteniteException.Protocol(ProtocolError.UnknownDataFrameType(data.value))
+                    is OpData.Reserved -> throw TungsteniteException.ProtocolViolation(ProtocolError.UnknownDataFrameType(data.value))
                 }
             }
         }
@@ -378,8 +378,8 @@ public class WebSocketContext(
     private fun setAdditional(add: Frame) {
         val emptyOrPong =
             additionalSend == null ||
-                additionalSend?.header()?.opcode is OpCode.Control &&
-                (additionalSend?.header()?.opcode as OpCode.Control).code is OpCtl.Pong
+                additionalSend?.header?.opcode is OpCode.Control &&
+                (additionalSend?.header?.opcode as OpCode.Control).code is OpCtl.Pong
         if (emptyOrPong) {
             additionalSend = add
         }

@@ -69,9 +69,9 @@ public class FrameSocket<Stream>(
 public class FrameCodec(
     inBufLen: Int = READ_BUF_LEN,
 ) {
-    public val inBuffer: ArrayList<Byte> = ArrayList(inBufLen)
+    internal val inBuffer: ArrayList<Byte> = ArrayList(inBufLen)
     private var inBufMaxRead: Int = maxOf(inBufLen, FrameHeader.MAX_SIZE)
-    public val outBuffer: ArrayList<Byte> = ArrayList()
+    internal val outBuffer: ArrayList<Byte> = ArrayList()
     public var maxOutBufferLen: Int = Int.MAX_VALUE
         private set
     public var outBufferWriteLen: Int = 0
@@ -135,7 +135,7 @@ public class FrameCodec(
                             applyMask(payloadBytes, m)
                             h.mask = null
                         } else if (!acceptUnmasked) {
-                            throw TungsteniteException.Protocol(ProtocolError.UnmaskedFrameFromClient)
+                            throw TungsteniteException.ProtocolViolation(ProtocolError.UnmaskedFrameFromClient)
                         }
                     }
 

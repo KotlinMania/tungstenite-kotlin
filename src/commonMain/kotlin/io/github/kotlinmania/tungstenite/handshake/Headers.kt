@@ -111,7 +111,7 @@ public class HeaderMap {
 
                 if (colonPos == -1) {
                     return Result.failure(
-                        TungsteniteException.Protocol(ProtocolError.Httparse("missing colon in header line")),
+                        TungsteniteException.ProtocolViolation(ProtocolError.Httparse("missing colon in header line")),
                     )
                 }
 

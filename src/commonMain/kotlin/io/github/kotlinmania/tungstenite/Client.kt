@@ -49,8 +49,9 @@ public fun <Stream> clientWithConfig(
  */
 public class ClientRequestBuilder(
     private var uri: String,
-    private val headers: MutableMap<String, String> = mutableMapOf(),
 ) : IntoClientRequest {
+    private val headers: MutableMap<String, String> = mutableMapOf()
+
     public fun header(name: String, value: String): ClientRequestBuilder =
         apply {
             headers[name] = value

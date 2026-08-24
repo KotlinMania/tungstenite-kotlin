@@ -130,7 +130,7 @@ public sealed class CloseCode {
      * Indicates that an endpoint is terminating the connection due
      * to a protocol error.
      */
-    public object Protocol : CloseCode()
+    public object ProtocolError : CloseCode()
 
     /**
      * Indicates that an endpoint is terminating the connection
@@ -250,7 +250,7 @@ public sealed class CloseCode {
         when (this) {
             Normal -> 1000u
             Away -> 1001u
-            Protocol -> 1002u
+            ProtocolError -> 1002u
             Unsupported -> 1003u
             Status -> 1005u
             Abnormal -> 1006u
@@ -273,7 +273,7 @@ public sealed class CloseCode {
             when (val c = code.toInt()) {
                 1000 -> Normal
                 1001 -> Away
-                1002 -> Protocol
+                1002 -> ProtocolError
                 1003 -> Unsupported
                 1005 -> Status
                 1006 -> Abnormal

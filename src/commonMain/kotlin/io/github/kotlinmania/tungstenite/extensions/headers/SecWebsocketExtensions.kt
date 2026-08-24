@@ -28,10 +28,6 @@ public data class WebsocketProtocolExtension(
     public val name: String,
     public val params: List<WebsocketExtensionParam> = emptyList(),
 ) {
-    public fun name(): String = name
-
-    public fun params(): List<WebsocketExtensionParam> = params
-
     override fun toString(): String {
         if (params.isEmpty()) return name
         val sb = StringBuilder(name)
