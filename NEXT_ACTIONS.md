@@ -5,10 +5,10 @@ Based on AST analysis, here are the concrete next steps.
 ## Summary
 
 - **Files Present:** 27/27 (100.0%)
-- **Function parity:** 227/357 matched (target 450) — 63.6%
-- **Class/type parity:** 73/102 matched (target 235) — 71.6%
-- **Combined symbol parity:** 300/459 matched (target 685) — 65.4%
-- **Average inline-code cosine:** 0.35 (function body across 20 matched files)
+- **Function parity:** 246/357 matched (target 474) — 68.9%
+- **Class/type parity:** 74/102 matched (target 238) — 72.5%
+- **Combined symbol parity:** 320/459 matched (target 712) — 69.7%
+- **Average inline-code cosine:** 0.40 (function body across 20 matched files)
 - **Average documentation cosine:** 0.67 (doc text across 20 matched files)
 - **Cheat-zeroed Files:** 8
 - **Critical Issues:** 24 files with <0.60 function similarity
@@ -75,43 +75,19 @@ Every matched file is listed below with function and type symbol parity.
 - **Missing types:** `ParamName`, `Err`
 - **Tests:** 3/13 matched
 
-### 5. handshake.client
-
-- **Target:** `handshake.Client`
-- **Similarity:** 0.14
-- **Dependents:** 0
-- **Priority Score:** 162308.6
-- **Functions:** 4/16 matched (target 12)
-- **Missing functions:** `generate_request`, `extract_subprotocols_from_request`, `verify_response`, `from_httparse`, `random_keys`, `construct_expected`, `request_formatting`, `request_formatting_with_host`, `request_formatting_with_at`, `request_with_compression`, `response_parsing`, `invalid_custom_request`
-- **Types:** 3/7 matched (target 4)
-- **Missing types:** `IncomingData`, `InternalStream`, `FinalResult`, `VerifyData`
-- **Tests:** 0/8 matched
-
-### 6. protocol.mod
+### 5. protocol.mod
 
 - **Target:** `protocol.Mod [STUB]`
 - **Similarity:** 0.00
 - **Dependents:** 0
 - **Priority Score:** 135110.0
-- **Functions:** 33/44 matched (target 47)
+- **Functions:** 33/44 matched (target 48)
 - **Missing functions:** `from_raw_socket_with_extensions`, `from_partially_read_with_extensions`, `get_config`, `read_message`, `write_message`, `write_pending`, `check_connection_reset`, `per_message_deflate_compression`, `per_message_deflate_decompression`, `per_message_compression_decompress_respects_message_size_limit`, `make_message`
 - **Types:** 5/7 matched
 - **Missing types:** `CheckConnectionReset`, `WriteMoc`
 - **Tests:** 4/8 matched
 
-### 7. handshake.server
-
-- **Target:** `handshake.Server`
-- **Similarity:** 0.15
-- **Dependents:** 0
-- **Priority Score:** 132008.5
-- **Functions:** 4/11 matched (target 6)
-- **Missing functions:** `create_parts`, `create_response_with_body`, `write_response`, `from_httparse`, `on_request`, `request_parsing`, `request_replying`
-- **Types:** 3/9 matched (target 4)
-- **Missing types:** `Request`, `Response`, `ErrorResponse`, `IncomingData`, `InternalStream`, `FinalResult`
-- **Tests:** 0/2 matched
-
-### 8. deflate.mod
+### 6. deflate.mod
 
 - **Target:** `deflate.Mod [STUB]`
 - **Similarity:** 0.00
@@ -123,7 +99,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Missing types:** _none_
 - **Tests:** 0/11 matched
 
-### 9. frame.utf8
+### 7. frame.utf8
 
 - **Target:** `frame.Utf8`
 - **Similarity:** 0.24
@@ -135,18 +111,30 @@ Every matched file is listed below with function and type symbol parity.
 - **Missing types:** `Target`, `Error`
 - **Tests:** 1/1 matched
 
-### 10. client
+### 8. handshake.server
+
+- **Target:** `handshake.Server`
+- **Similarity:** 0.52
+- **Dependents:** 0
+- **Priority Score:** 72004.8
+- **Functions:** 10/11 matched
+- **Missing functions:** `from_httparse`
+- **Types:** 3/9 matched (target 5)
+- **Missing types:** `Request`, `Response`, `ErrorResponse`, `IncomingData`, `InternalStream`, `FinalResult`
+- **Tests:** 2/2 matched
+
+### 9. client
 
 - **Target:** `tungstenite.Client`
-- **Similarity:** 0.13
+- **Similarity:** 0.27
 - **Dependents:** 0
-- **Priority Score:** 91508.7
-- **Functions:** 4/13 matched (target 6)
-- **Missing functions:** `connect_with_config`, `try_client_handshake`, `create_request`, `connect`, `connect_to_some`, `connect_stream`, `new`, `with_header`, `with_sub_protocol`
+- **Priority Score:** 61507.3
+- **Functions:** 7/13 matched (target 12)
+- **Missing functions:** `connect_with_config`, `try_client_handshake`, `create_request`, `connect`, `connect_to_some`, `connect_stream`
 - **Types:** 2/2 matched
 - **Missing types:** _none_
 
-### 11. stream
+### 10. stream
 
 - **Target:** `tungstenite.Stream`
 - **Similarity:** 0.00
@@ -156,6 +144,18 @@ Every matched file is listed below with function and type symbol parity.
 - **Missing functions:** `set_nodelay`, `fmt`, `read`, `write`, `flush`
 - **Types:** 3/4 matched (target 6)
 - **Missing types:** `RustlsStreamDebug`
+
+### 11. handshake.client
+
+- **Target:** `handshake.Client`
+- **Similarity:** 0.60
+- **Dependents:** 0
+- **Priority Score:** 52304.0
+- **Functions:** 14/16 matched (target 24)
+- **Missing functions:** `from_httparse`, `construct_expected`
+- **Types:** 4/7 matched (target 6)
+- **Missing types:** `IncomingData`, `InternalStream`, `FinalResult`
+- **Tests:** 7/8 matched
 
 ### 12. frame.frame
 
