@@ -5,10 +5,10 @@ Based on AST analysis, here are the concrete next steps.
 ## Summary
 
 - **Files Present:** 22/27 (81.5%)
-- **Function parity:** 196/326 matched (target 396) — 60.1%
+- **Function parity:** 193/326 matched (target 392) — 59.2%
 - **Class/type parity:** 60/92 matched (target 205) — 65.2%
-- **Combined symbol parity:** 256/418 matched (target 601) — 61.2%
-- **Average inline-code cosine:** 0.36 (function body across 19 matched files)
+- **Combined symbol parity:** 253/418 matched (target 597) — 60.5%
+- **Average inline-code cosine:** 0.35 (function body across 19 matched files)
 - **Average documentation cosine:** 0.65 (doc text across 19 matched files)
 - **Cheat-zeroed Files:** 3
 - **Critical Issues:** 19 files with <0.60 function similarity
@@ -54,11 +54,11 @@ Every matched file is listed below with function and type symbol parity.
 ### 3. headers.sec_websocket_extensions
 
 - **Target:** `headers.SecWebsocketExtensions`
-- **Similarity:** 0.32
+- **Similarity:** 0.23
 - **Dependents:** 1
-- **Priority Score:** 1133006.8
-- **Functions:** 12/21 matched (target 32)
-- **Missing functions:** `decode`, `encode`, `from`, `from_iter`, `into_iter`, `from_str`, `fmt`, `test_decode`, `test_encode`
+- **Priority Score:** 1163007.8
+- **Functions:** 9/21 matched (target 28)
+- **Missing functions:** `name`, `params`, `value`, `decode`, `encode`, `from`, `from_iter`, `into_iter`, `from_str`, `fmt`, `test_decode`, `test_encode`
 - **Types:** 5/9 matched (target 6)
 - **Missing types:** `Item`, `IntoIter`, `Err`, `WriteToDyn`
 - **Tests:** 3/5 matched
