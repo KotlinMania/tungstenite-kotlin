@@ -3,6 +3,8 @@ package io.github.kotlinmania.tungstenite.handshake
 
 import io.github.kotlinmania.tungstenite.ProtocolError
 import io.github.kotlinmania.tungstenite.TungsteniteException
+import io.github.kotlinmania.tungstenite.extensions.Extensions
+import io.github.kotlinmania.tungstenite.extensions.headers.SecWebsocketExtensions
 import io.github.kotlinmania.tungstenite.protocol.Role
 import io.github.kotlinmania.tungstenite.protocol.WebSocket
 import io.github.kotlinmania.tungstenite.protocol.WebSocketConfig
@@ -12,24 +14,36 @@ import io.github.kotlinmania.tungstenite.protocol.WebSocketConfig
  */
 public interface Callback {
     /** Called when the request is parsed, before sending the response. */
-    public fun apply(request: Request, response: Response): Result<Response>
+    public fun onRequest(
+        request: Request,
+        response: Response,
+    ): Result<Response>
+
+    /** Backward compatibility alias. */
+    public fun apply(
+        request: Request,
+        response: Response,
+    ): Result<Response> = onRequest(request, response)
 }
 
 /**
  * Default no-op callback.
  */
 public class NoCallback : Callback {
-    override fun apply(request: Request, response: Response): Result<Response> = Result.success(response)
+    override fun onRequest(
+        request: Request,
+        response: Response,
+    ): Result<Response> = Result.success(response)
 }
 
 /**
- * Create a response for a WebSocket handshake request.
+ * Create base response headers and status for a WebSocket handshake request.
  */
-public fun createResponse(request: Request): Response {
+public fun createParts(request: Request): Response {
     if (request.method != "GET") {
         throw TungsteniteException.ProtocolViolation(ProtocolError.WrongHttpMethod)
     }
-    if (request.version != "HTTP/1.1") {
+    if (request.version < "HTTP/1.1") {
         throw TungsteniteException.ProtocolViolation(ProtocolError.WrongHttpVersion)
     }
 
@@ -81,9 +95,57 @@ public fun createResponse(request: Request): Response {
 
     return Response(
         statusCode = 101,
-        version = "HTTP/1.1",
+        version = request.version,
         headers = responseHeaders,
     )
+}
+
+/**
+ * Create a response for the request.
+ */
+public fun createResponse(request: Request): Response = createParts(request)
+
+/**
+ * Create a response for the request with a custom body.
+ */
+public fun createResponseWithBody(
+    request: Request,
+    generateBody: () -> ByteArray?,
+): Response {
+    val base = createParts(request)
+    return base.copy(body = generateBody())
+}
+
+/**
+ * Write response into wire bytes.
+ */
+public fun writeResponse(response: Response): ByteArray {
+    val sb = StringBuilder()
+    val statusText = if (response.statusCode == 101) "Switching Protocols" else "OK"
+    sb
+        .append(versionAsStr(response.version))
+        .append(" ")
+        .append(response.statusCode)
+        .append(" ")
+        .append(statusText)
+        .append("\r\n")
+
+    for ((k, v) in response.headers) {
+        sb
+            .append(k)
+            .append(": ")
+            .append(v)
+            .append("\r\n")
+    }
+
+    sb.append("\r\n")
+    val headerBytes = sb.toString().encodeToByteArray()
+    val bodyBytes = response.body
+    return if (bodyBytes != null && bodyBytes.isNotEmpty()) {
+        headerBytes + bodyBytes
+    } else {
+        headerBytes
+    }
 }
 
 /**
@@ -95,29 +157,78 @@ public class ServerHandshake<S, C : Callback>(
     public val config: WebSocketConfig? = null,
 ) : HandshakeRole<Request, S, WebSocket<S>> {
     public var parsedRequest: Request? = null
+    public var extensions: Extensions = Extensions()
 
     override fun stageFinished(
         finish: StageResult<Request, S>,
     ): Result<ProcessingResult<S, WebSocket<S>>> {
         return when (finish) {
             is StageResult.DoneReading -> {
+                if (finish.tail.isNotEmpty()) {
+                    return Result.failure(TungsteniteException.ProtocolViolation(ProtocolError.JunkAfterRequest))
+                }
+
                 val request = finish.result
                 parsedRequest = request
 
-                val baseResponse =
+                var baseResponse =
                     try {
                         createResponse(request)
                     } catch (e: Throwable) {
                         return Result.failure(e)
                     }
 
-                val finalResponseResult = callback.apply(request, baseResponse)
-                if (finalResponseResult.isFailure) {
-                    return Result.failure(finalResponseResult.exceptionOrNull()!!)
-                }
-                val finalResponse = finalResponseResult.getOrThrow()
+                val extHeader =
+                    request.headers.entries
+                        .firstOrNull { it.key.equals("Sec-WebSocket-Extensions", ignoreCase = true) }
+                        ?.value
 
-                val responseBytes = buildResponseBytes(finalResponse)
+                if (extHeader != null) {
+                    val parsedExt =
+                        try {
+                            SecWebsocketExtensions.parse(extHeader)
+                        } catch (_: Exception) {
+                            return Result.failure(
+                                TungsteniteException.ProtocolViolation(
+                                    ProtocolError.InvalidHeader("Sec-WebSocket-Extensions"),
+                                ),
+                            )
+                        }
+
+                    val extConfig =
+                        config?.extensions
+                            ?: return Result.failure(
+                                TungsteniteException.ProtocolViolation(
+                                    ProtocolError.InvalidHeader("Sec-WebSocket-Extensions"),
+                                ),
+                            )
+
+                    val (negotiated, agreed) =
+                        try {
+                            extConfig.acceptOffers(parsedExt)
+                        } catch (e: Exception) {
+                            return Result.failure(
+                                TungsteniteException.ProtocolViolation(
+                                    ProtocolError.InvalidExtensionsHeader(e.message ?: ""),
+                                ),
+                            )
+                        }
+
+                    if (agreed != null && !agreed.isEmpty()) {
+                        val newHeaders = baseResponse.headers.toMutableMap()
+                        newHeaders["Sec-WebSocket-Extensions"] = agreed.headerValue()
+                        baseResponse = baseResponse.copy(headers = newHeaders)
+                    }
+                    this.extensions = negotiated
+                }
+
+                val callbackResult = callback.onRequest(request, baseResponse)
+                if (callbackResult.isFailure) {
+                    return Result.failure(callbackResult.exceptionOrNull()!!)
+                }
+                val finalResponse = callbackResult.getOrThrow()
+
+                val responseBytes = writeResponse(finalResponse)
                 val machine = HandshakeMachine.startWrite(finish.stream, responseBytes)
                 Result.success(ProcessingResult.Continue(machine))
             }
@@ -131,24 +242,6 @@ public class ServerHandshake<S, C : Callback>(
                 Result.success(ProcessingResult.Done(ws))
             }
         }
-    }
-
-    private fun buildResponseBytes(response: Response): ByteArray {
-        val sb = StringBuilder()
-        sb
-            .append(response.version)
-            .append(" ")
-            .append(response.statusCode)
-            .append(" Switching Protocols\r\n")
-        for ((k, v) in response.headers) {
-            sb
-                .append(k)
-                .append(": ")
-                .append(v)
-                .append("\r\n")
-        }
-        sb.append("\r\n")
-        return sb.toString().encodeToByteArray()
     }
 
     public companion object {

@@ -4,6 +4,8 @@ package io.github.kotlinmania.tungstenite.protocol
 import io.github.kotlinmania.tungstenite.CapacityError
 import io.github.kotlinmania.tungstenite.ProtocolError
 import io.github.kotlinmania.tungstenite.TungsteniteException
+import io.github.kotlinmania.tungstenite.extensions.Extensions
+import io.github.kotlinmania.tungstenite.extensions.ExtensionsConfig
 import io.github.kotlinmania.tungstenite.protocol.frame.CloseFrame
 import io.github.kotlinmania.tungstenite.protocol.frame.Frame
 import io.github.kotlinmania.tungstenite.protocol.frame.FrameCodec
@@ -51,6 +53,7 @@ public data class WebSocketConfig(
     public var maxMessageSize: Long? = 64L shl 20,
     public var maxFrameSize: Long? = 16L shl 20,
     public var acceptUnmaskedFrames: Boolean = false,
+    public var extensions: ExtensionsConfig? = null,
 ) {
     public fun readBufferSize(size: Int): WebSocketConfig = apply { this.readBufferSize = size }
 
@@ -63,6 +66,8 @@ public data class WebSocketConfig(
     public fun maxFrameSize(size: Long?): WebSocketConfig = apply { this.maxFrameSize = size }
 
     public fun acceptUnmaskedFrames(accept: Boolean): WebSocketConfig = apply { this.acceptUnmaskedFrames = accept }
+
+    public fun extensions(extensions: ExtensionsConfig?): WebSocketConfig = apply { this.extensions = extensions }
 
     public fun assertValid() {
         require(maxWriteBufferSize > writeBufferSize) {
