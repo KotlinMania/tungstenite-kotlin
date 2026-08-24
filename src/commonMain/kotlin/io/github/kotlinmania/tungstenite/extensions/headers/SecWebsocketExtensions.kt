@@ -2,16 +2,75 @@
 package io.github.kotlinmania.tungstenite.extensions.headers
 
 /**
+ * Trait/interface for types that can calculate their encoded length and write bytes.
+ */
+public interface WriteTo {
+    /**
+     * Pre-calculated length in bytes when encoded.
+     */
+    public fun encodedLen(): Int
+
+    /**
+     * Writes encoded bytes to the provided consumer.
+     */
+    public fun writeWith(write: (ByteArray) -> Unit)
+}
+
+/**
+ * Comma-delimited list of encodable items.
+ */
+public class CommaDelimited<T : WriteTo>(
+    public val items: List<T>,
+) : WriteTo {
+    override fun encodedLen(): Int {
+        val allLen = items.sumOf { it.encodedLen() }
+        val sepLen = if (items.size > 1) (items.size - 1) * 2 else 0
+        return allLen + sepLen
+    }
+
+    override fun writeWith(write: (ByteArray) -> Unit) {
+        for (i in items.indices) {
+            if (i > 0) {
+                write(SEPARATOR)
+            }
+            items[i].writeWith(write)
+        }
+    }
+
+    public companion object {
+        private val SEPARATOR = ", ".encodeToByteArray()
+    }
+}
+
+/**
  * Named parameter for an extension in a `Sec-Websocket-Extensions` header.
  */
 public data class WebsocketExtensionParam(
     public val name: String,
     public val value: String? = null,
-) {
+) : WriteTo {
+    override fun encodedLen(): Int =
+        name.length + if (value != null) 1 + value.length else 0
+
+    override fun writeWith(write: (ByteArray) -> Unit) {
+        write(name.encodeToByteArray())
+        if (value != null) {
+            write("=".encodeToByteArray())
+            write(value.encodeToByteArray())
+        }
+    }
+
     override fun toString(): String =
         if (value != null) "$name=$value" else name
 
     public companion object {
+        /** Constructs a new parameter. */
+        public fun new(
+            name: String,
+            value: String? = null,
+        ): WebsocketExtensionParam = WebsocketExtensionParam(name, value)
+
+        /** Parses a parameter from a string. */
         public fun parse(s: String): WebsocketExtensionParam {
             val parts = s.split('=', limit = 2)
             val name = parts[0].trim()
@@ -27,7 +86,20 @@ public data class WebsocketExtensionParam(
 public data class WebsocketProtocolExtension(
     public val name: String,
     public val params: List<WebsocketExtensionParam> = emptyList(),
-) {
+) : WriteTo {
+    override fun encodedLen(): Int {
+        val paramsLen = params.sumOf { it.encodedLen() + 2 }
+        return name.length + paramsLen
+    }
+
+    override fun writeWith(write: (ByteArray) -> Unit) {
+        write(name.encodeToByteArray())
+        for (p in params) {
+            write("; ".encodeToByteArray())
+            p.writeWith(write)
+        }
+    }
+
     override fun toString(): String {
         if (params.isEmpty()) return name
         val sb = StringBuilder(name)
@@ -38,6 +110,13 @@ public data class WebsocketProtocolExtension(
     }
 
     public companion object {
+        /** Constructs a new extension directive. */
+        public fun new(
+            name: String,
+            params: List<WebsocketExtensionParam> = emptyList(),
+        ): WebsocketProtocolExtension = WebsocketProtocolExtension(name, params)
+
+        /** Parses an extension directive from a string. */
         public fun parse(s: String): WebsocketProtocolExtension {
             val parts = s.split(';')
             val name = parts[0].trim()
@@ -53,19 +132,31 @@ public data class WebsocketProtocolExtension(
 public data class SecWebsocketExtensions(
     public val extensions: List<WebsocketProtocolExtension> = emptyList(),
 ) : Iterable<WebsocketProtocolExtension> {
+    /** Returns an iterator over extensions. */
+    public fun iter(): Iterator<WebsocketProtocolExtension> = iterator()
+
+    /** Number of extensions. */
     public fun len(): Int = extensions.size
 
+    /** Number of extensions. */
     public val size: Int get() = extensions.size
 
+    /** Returns `true` if empty. */
     public fun isEmpty(): Boolean = extensions.isEmpty()
 
     override fun iterator(): Iterator<WebsocketProtocolExtension> = extensions.iterator()
 
+    /** Serialized header value. */
     public fun headerValue(): String = extensions.joinToString(", ") { it.toString() }
 
     override fun toString(): String = headerValue()
 
     public companion object {
+        /** Constructs a new header from extensions. */
+        public fun new(extensions: List<WebsocketProtocolExtension>): SecWebsocketExtensions =
+            SecWebsocketExtensions(extensions)
+
+        /** Parses a header from a string. */
         public fun parse(headerValue: String): SecWebsocketExtensions {
             val extList = fromCommaDelimited(headerValue).map { WebsocketProtocolExtension.parse(it) }
             return SecWebsocketExtensions(extList)

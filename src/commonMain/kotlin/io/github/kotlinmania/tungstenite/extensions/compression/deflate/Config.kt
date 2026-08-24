@@ -67,7 +67,7 @@ public data class PermessageDeflateConfig(
     public var compressionLevel: Int = 6,
 ) {
     /**
-     * Set server_no_context_takeover.
+     * Set serverNoContextTakeover.
      */
     public fun serverNoContextTakeover(enable: Boolean): PermessageDeflateConfig =
         apply {
@@ -75,7 +75,7 @@ public data class PermessageDeflateConfig(
         }
 
     /**
-     * Set client_no_context_takeover.
+     * Set clientNoContextTakeover.
      */
     public fun clientNoContextTakeover(enable: Boolean): PermessageDeflateConfig =
         apply {
@@ -83,7 +83,7 @@ public data class PermessageDeflateConfig(
         }
 
     /**
-     * Set server_max_window_bits.
+     * Set serverMaxWindowBits.
      */
     public fun serverMaxWindowBits(bits: Int?): PermessageDeflateConfig =
         apply {
@@ -91,7 +91,7 @@ public data class PermessageDeflateConfig(
         }
 
     /**
-     * Set client_max_window_bits.
+     * Set clientMaxWindowBits.
      */
     public fun clientMaxWindowBits(bits: Int?): PermessageDeflateConfig =
         apply {

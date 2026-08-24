@@ -42,4 +42,81 @@ class SecWebsocketExtensionsTest {
         val serialized = parsed.headerValue()
         assertEquals("permessage-deflate; client_max_window_bits=15; server_no_context_takeover", serialized)
     }
+
+    @Test
+    fun parseSeparateHeaders() {
+        val rawHeaders = listOf("foo", "bar; baz=2")
+        val combined = rawHeaders.joinToString(", ")
+        val extensions = SecWebsocketExtensions.parse(combined)
+
+        assertEquals(
+            SecWebsocketExtensions(
+                listOf(
+                    WebsocketProtocolExtension("foo", emptyList()),
+                    WebsocketProtocolExtension(
+                        "bar",
+                        listOf(WebsocketExtensionParam("baz", "2")),
+                    ),
+                ),
+            ),
+            extensions,
+        )
+    }
+
+    @Test
+    fun roundTripComplex() {
+        val rawHeaders =
+            listOf(
+                "deflate-stream",
+                "mux; max-channels=4; flow-control, deflate-stream",
+                "private-extension",
+            )
+        val combined = rawHeaders.joinToString(", ")
+        val extensions = SecWebsocketExtensions.parse(combined)
+
+        assertEquals(
+            "deflate-stream, mux; max-channels=4; flow-control, deflate-stream, private-extension",
+            extensions.headerValue(),
+        )
+    }
+
+    @Test
+    fun writeToExactEncodedLen() {
+        val cases: List<WriteTo> =
+            listOf(
+                CommaDelimited(
+                    listOf(
+                        WebsocketProtocolExtension.parse("extension-name"),
+                        WebsocketProtocolExtension.parse("with-params; a=5; b=8"),
+                    ),
+                ),
+                CommaDelimited<WebsocketProtocolExtension>(emptyList()),
+                CommaDelimited(
+                    listOf(
+                        WebsocketProtocolExtension.parse("duplicate-name"),
+                        WebsocketProtocolExtension.parse("duplicate-name"),
+                        WebsocketProtocolExtension.parse("duplicate-name"),
+                    ),
+                ),
+                WebsocketProtocolExtension.new(
+                    "name",
+                    listOf(
+                        WebsocketExtensionParam.parse("foo=123"),
+                        WebsocketExtensionParam.parse("bar"),
+                        WebsocketExtensionParam.parse("baz=four"),
+                    ),
+                ),
+            )
+
+        for (case in cases) {
+            val bytes = mutableListOf<Byte>()
+            val expectedLen = case.encodedLen()
+            case.writeWith { slice ->
+                for (b in slice) {
+                    bytes.add(b)
+                }
+            }
+            assertEquals(expectedLen, bytes.size)
+        }
+    }
 }
