@@ -15,8 +15,20 @@ public class Utf8Bytes internal constructor(
 
     public fun asBytes(): ByteArray = bytes.asSlice()
 
+    public fun asBytesObj(): Bytes = bytes
+
+    public fun asRef(): String = asStr()
+
+    public fun borrow(): String = asStr()
+
+    public fun toBytes(): Bytes = bytes
+
     public val length: Int
         get() = asStr().length
+
+    public fun len(): Int = length
+
+    public fun isEmpty(): Boolean = bytes.isEmpty()
 
     public operator fun get(index: Int): Char = asStr()[index]
 

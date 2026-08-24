@@ -135,6 +135,9 @@ public data class SecWebsocketExtensions(
     /** Returns an iterator over extensions. */
     public fun iter(): Iterator<WebsocketProtocolExtension> = iterator()
 
+    /** Into iterator equivalent. */
+    public fun intoIter(): Iterator<WebsocketProtocolExtension> = iterator()
+
     /** Number of extensions. */
     public fun len(): Int = extensions.size
 
@@ -155,6 +158,14 @@ public data class SecWebsocketExtensions(
         /** Constructs a new header from extensions. */
         public fun new(extensions: List<WebsocketProtocolExtension>): SecWebsocketExtensions =
             SecWebsocketExtensions(extensions)
+
+        /** Decodes from a list of header values. */
+        public fun decode(values: List<String>): SecWebsocketExtensions =
+            parse(values.joinToString(", "))
+
+        /** Encodes header value. */
+        public fun encode(header: SecWebsocketExtensions): String =
+            header.headerValue()
 
         /** Parses a header from a string. */
         public fun parse(headerValue: String): SecWebsocketExtensions {
