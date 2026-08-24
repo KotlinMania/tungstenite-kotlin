@@ -4,14 +4,14 @@ Based on AST analysis, here are the concrete next steps.
 
 ## Summary
 
-- **Files Present:** 22/27 (81.5%)
-- **Function parity:** 193/326 matched (target 392) — 59.2%
-- **Class/type parity:** 60/92 matched (target 205) — 65.2%
-- **Combined symbol parity:** 253/418 matched (target 597) — 60.5%
-- **Average inline-code cosine:** 0.35 (function body across 19 matched files)
-- **Average documentation cosine:** 0.65 (doc text across 19 matched files)
-- **Cheat-zeroed Files:** 3
-- **Critical Issues:** 19 files with <0.60 function similarity
+- **Files Present:** 27/27 (100.0%)
+- **Function parity:** 227/357 matched (target 450) — 63.6%
+- **Class/type parity:** 73/102 matched (target 235) — 71.6%
+- **Combined symbol parity:** 300/459 matched (target 685) — 65.4%
+- **Average inline-code cosine:** 0.35 (function body across 20 matched files)
+- **Average documentation cosine:** 0.67 (doc text across 20 matched files)
+- **Cheat-zeroed Files:** 8
+- **Critical Issues:** 24 files with <0.60 function similarity
 
 ## Priority 1: Fix Incomplete High-Dependency Files
 
@@ -39,19 +39,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Missing types:** `Result`
 - **Tests:** 0/3 matched
 
-### 2. proxy
-
-- **Target:** `tungstenite.Proxy`
-- **Similarity:** 0.26
-- **Dependents:** 1
-- **Priority Score:** 1224307.4
-- **Functions:** 18/39 matched (target 19)
-- **Missing functions:** `from_env`, `connect_proxy_stream`, `proxy_from_env_for_host`, `get_env_first`, `split_userinfo`, `parse_host_port`, `connect_http_proxy`, `connect_socks5_proxy`, `connect_to_proxy`, `read_connect_response`, `http_connect`, `socks5_handshake`, `socks5_userpass_auth`, `send_socks5_connect`, `new`, `read`, `write`, `flush`, `http_connect_handshake_ok`, `socks5_handshake_no_auth`, `socks5_handshake_with_auth`
-- **Types:** 3/4 matched
-- **Missing types:** `MockStream`
-- **Tests:** 6/13 matched
-
-### 3. headers.sec_websocket_extensions
+### 2. headers.sec_websocket_extensions
 
 - **Target:** `headers.SecWebsocketExtensions`
 - **Similarity:** 0.23
@@ -63,18 +51,29 @@ Every matched file is listed below with function and type symbol parity.
 - **Missing types:** `Item`, `IntoIter`, `Err`, `WriteToDyn`
 - **Tests:** 3/5 matched
 
+### 3. proxy
+
+- **Target:** `tungstenite.Proxy`
+- **Similarity:** 0.37
+- **Dependents:** 1
+- **Priority Score:** 1154306.2
+- **Functions:** 25/39 matched (target 27)
+- **Missing functions:** `from_env`, `connect_proxy_stream`, `proxy_from_env_for_host`, `get_env_first`, `connect_http_proxy`, `connect_socks5_proxy`, `connect_to_proxy`, `new`, `read`, `write`, `flush`, `http_connect_handshake_ok`, `socks5_handshake_no_auth`, `socks5_handshake_with_auth`
+- **Types:** 3/4 matched
+- **Missing types:** `MockStream`
+- **Tests:** 6/13 matched
+
 ### 4. deflate.config
 
-- **Target:** `deflate.Config`
-- **Similarity:** 0.07
+- **Target:** `deflate.Config [ZERO]`
+- **Similarity:** 0.00
 - **Dependents:** 0
-- **Priority Score:** 293609.3
-- **Functions:** 4/29 matched (target 10)
-- **Missing functions:** `new`, `set_max_window_bits`, `set_no_context_takeover`, `as_offer`, `accept_offer`, `accept_response`, `as_extension`, `apply`, `from`, `from_str`, `ordinal`, `name`, `deflate_config_parse_params_valid`, `deflate_rejects_unknown_parameters`, `deflate_rejects_duplicate_parameters`, `deflate_config_minimal_client_offer`, `deflate_server_respects_offer_server_no_context_takeover`, `rejects_unsupported_client_max_window_bits_offer`, `interop`, `make_config`, `rejects_unsupported_client_max_window_bits_response`, `parse_extensions`, `parse_deflates`, `simplest`, `client_multiple_offers`
-- **Types:** 3/7 matched (target 12)
-- **Missing types:** `DeflateConfig`, `DeflateInvalidMaxWindowBits`, `ParamName`, `Err`
-- **Tests:** 0/13 matched
-- **Lint issues:** 1
+- **Priority Score:** 173610.0
+- **Functions:** 14/29 matched (target 28)
+- **Missing functions:** `apply`, `from`, `from_str`, `ordinal`, `name`, `deflate_config_parse_params_valid`, `deflate_rejects_unknown_parameters`, `deflate_rejects_duplicate_parameters`, `interop`, `make_config`, `rejects_unsupported_client_max_window_bits_response`, `parse_extensions`, `parse_deflates`, `simplest`, `client_multiple_offers`
+- **Types:** 5/7 matched (target 14)
+- **Missing types:** `ParamName`, `Err`
+- **Tests:** 3/13 matched
 
 ### 5. handshake.client
 
@@ -112,7 +111,19 @@ Every matched file is listed below with function and type symbol parity.
 - **Missing types:** `Request`, `Response`, `ErrorResponse`, `IncomingData`, `InternalStream`, `FinalResult`
 - **Tests:** 0/2 matched
 
-### 8. frame.utf8
+### 8. deflate.mod
+
+- **Target:** `deflate.Mod [STUB]`
+- **Similarity:** 0.00
+- **Dependents:** 0
+- **Priority Score:** 121910.0
+- **Functions:** 3/15 matched (target 14)
+- **Missing functions:** `from`, `interop`, `large_message_compression`, `decompression_limits_applied`, `compressible_payload_prefixes`, `make_frames`, `large_message_decompression`, `decompress_multiple_messages_that_each_set_bfinal`, `one_block`, `sharing_sliding_window`, `deflate_block_with_bfinal_set`, `two_deflate_blocks`
+- **Types:** 4/4 matched (target 11)
+- **Missing types:** _none_
+- **Tests:** 0/11 matched
+
+### 9. frame.utf8
 
 - **Target:** `frame.Utf8`
 - **Similarity:** 0.24
@@ -124,7 +135,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Missing types:** `Target`, `Error`
 - **Tests:** 1/1 matched
 
-### 9. client
+### 10. client
 
 - **Target:** `tungstenite.Client`
 - **Similarity:** 0.13
@@ -135,7 +146,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 2/2 matched
 - **Missing types:** _none_
 
-### 10. stream
+### 11. stream
 
 - **Target:** `tungstenite.Stream`
 - **Similarity:** 0.00
@@ -146,7 +157,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 3/4 matched (target 6)
 - **Missing types:** `RustlsStreamDebug`
 
-### 11. frame.frame
+### 12. frame.frame
 
 - **Target:** `frame.Frame`
 - **Similarity:** 0.59
@@ -158,7 +169,18 @@ Every matched file is listed below with function and type symbol parity.
 - **Missing types:** _none_
 - **Tests:** 1/1 matched
 
-### 12. handshake.mod
+### 13. compression.mod
+
+- **Target:** `compression.Mod [STUB]`
+- **Similarity:** 0.00
+- **Dependents:** 0
+- **Priority Score:** 40710.0
+- **Functions:** 0/4 matched (target 2)
+- **Missing functions:** `compressor`, `decompressor`, `map`, `from`
+- **Types:** 3/3 matched (target 6)
+- **Missing types:** _none_
+
+### 14. handshake.mod
 
 - **Target:** `handshake.Mod [STUB]`
 - **Similarity:** 0.00
@@ -170,7 +192,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Missing types:** _none_
 - **Tests:** 1/1 matched
 
-### 13. protocol.message
+### 15. protocol.message
 
 - **Target:** `protocol.Message`
 - **Similarity:** 0.57
@@ -182,7 +204,19 @@ Every matched file is listed below with function and type symbol parity.
 - **Missing types:** `IncompleteMessageCollector`
 - **Tests:** 6/6 matched
 
-### 14. buffer
+### 16. extensions.mod
+
+- **Target:** `extensions.Mod [STUB]`
+- **Similarity:** 0.00
+- **Dependents:** 0
+- **Priority Score:** 21510.0
+- **Functions:** 10/12 matched
+- **Missing functions:** `accept_offers_with_deflate_disabled`, `accept_offers_picks_first_acceptable_offer`
+- **Types:** 3/3 matched (target 7)
+- **Missing types:** _none_
+- **Tests:** 4/6 matched
+
+### 17. buffer
 
 - **Target:** `tungstenite.Buffer`
 - **Similarity:** 0.41
@@ -194,7 +228,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Missing types:** _none_
 - **Tests:** 2/2 matched
 
-### 15. frame.coding
+### 18. frame.coding
 
 - **Target:** `frame.Coding`
 - **Similarity:** 0.28
@@ -206,7 +240,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Missing types:** _none_
 - **Tests:** 4/4 matched
 
-### 16. handshake.headers
+### 19. handshake.headers
 
 - **Target:** `handshake.Headers`
 - **Similarity:** 0.40
@@ -218,7 +252,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Missing types:** `FromHttparse`
 - **Tests:** 3/3 matched
 
-### 17. util
+### 20. util
 
 - **Target:** `tungstenite.Util`
 - **Similarity:** 0.15
@@ -229,7 +263,18 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 1/3 matched (target 2)
 - **Missing types:** `NonBlockingResult`, `Result`
 
-### 18. handshake.machine
+### 21. tls
+
+- **Target:** `tungstenite.Tls`
+- **Similarity:** 0.30
+- **Dependents:** 0
+- **Priority Score:** 20507.0
+- **Functions:** 2/3 matched (target 2)
+- **Missing functions:** `wrap_stream`
+- **Types:** 1/2 matched (target 4)
+- **Missing types:** `TlsHandshakeError`
+
+### 22. handshake.machine
 
 - **Target:** `handshake.Machine`
 - **Similarity:** 0.66
@@ -240,7 +285,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 6/6 matched (target 14)
 - **Missing types:** _none_
 
-### 19. lib
+### 23. lib
 
 - **Target:** `tungstenite.Lib`
 - **Similarity:** 1.00
@@ -251,7 +296,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 0/1 matched (target 4)
 - **Missing types:** `ReadBuffer`
 
-### 20. frame.mod
+### 24. frame.mod
 
 - **Target:** `frame.Mod [STUB]`
 - **Similarity:** 0.00
@@ -263,7 +308,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Missing types:** _none_
 - **Tests:** 4/4 matched
 
-### 21. frame.mask
+### 25. frame.mask
 
 - **Target:** `frame.Mask`
 - **Similarity:** 0.52
@@ -275,13 +320,24 @@ Every matched file is listed below with function and type symbol parity.
 - **Missing types:** _none_
 - **Tests:** 1/1 matched
 
-### 22. server
+### 26. server
 
 - **Target:** `tungstenite.Server`
 - **Similarity:** 0.91
 - **Dependents:** 0
 - **Priority Score:** 400.9
 - **Functions:** 4/4 matched
+- **Missing functions:** _none_
+- **Types:** 0/0 matched
+- **Missing types:** _none_
+
+### 27. headers.mod
+
+- **Target:** `headers.Mod [STUB]`
+- **Similarity:** 0.00
+- **Dependents:** 0
+- **Priority Score:** 210.0
+- **Functions:** 2/2 matched
 - **Missing functions:** _none_
 - **Types:** 0/0 matched
 - **Missing types:** _none_
@@ -294,20 +350,4 @@ For each file to be considered "complete":
 - All tests ported
 - Documentation ported
 - port-lint header present
-
-## Reexport / Wiring Modules
-
-These files match `reexport_modules` patterns in `.ast_distance_config.json`. They are filtered out of
-normal priority and missing-file ladders because they are wiring
-modules, not direct logic ports. Consult them for call-site routing;
-do not treat them as the next implementation target by default.
-
-### Missing
-
-| Source | Expected target | Deps | Source path | Expected path |
-|--------|-----------------|------|-------------|---------------|
-| `deflate.mod` | `extensions.compression.deflate.Mod` | 0 | `extensions/compression/deflate/mod.rs` | `extensions/compression/deflate/Mod.kt` |
-| `compression.mod` | `extensions.compression.Mod` | 0 | `extensions/compression/mod.rs` | `extensions/compression/Mod.kt` |
-| `headers.mod` | `extensions.headers.Mod` | 0 | `extensions/headers/mod.rs` | `extensions/headers/Mod.kt` |
-| `extensions.mod` | `extensions.Mod` | 0 | `extensions/mod.rs` | `extensions/Mod.kt` |
 
