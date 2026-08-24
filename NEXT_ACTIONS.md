@@ -5,10 +5,10 @@ Based on AST analysis, here are the concrete next steps.
 ## Summary
 
 - **Files Present:** 27/27 (100.0%)
-- **Function parity:** 246/357 matched (target 474) — 68.9%
+- **Function parity:** 251/357 matched (target 483) — 70.3%
 - **Class/type parity:** 74/102 matched (target 238) — 72.5%
-- **Combined symbol parity:** 320/459 matched (target 712) — 69.7%
-- **Average inline-code cosine:** 0.40 (function body across 20 matched files)
+- **Combined symbol parity:** 325/459 matched (target 721) — 70.8%
+- **Average inline-code cosine:** 0.41 (function body across 20 matched files)
 - **Average documentation cosine:** 0.67 (doc text across 20 matched files)
 - **Cheat-zeroed Files:** 8
 - **Critical Issues:** 24 files with <0.60 function similarity
@@ -39,19 +39,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Missing types:** `Result`
 - **Tests:** 0/3 matched
 
-### 2. headers.sec_websocket_extensions
-
-- **Target:** `headers.SecWebsocketExtensions`
-- **Similarity:** 0.23
-- **Dependents:** 1
-- **Priority Score:** 1163007.8
-- **Functions:** 9/21 matched (target 28)
-- **Missing functions:** `name`, `params`, `value`, `decode`, `encode`, `from`, `from_iter`, `into_iter`, `from_str`, `fmt`, `test_decode`, `test_encode`
-- **Types:** 5/9 matched (target 6)
-- **Missing types:** `Item`, `IntoIter`, `Err`, `WriteToDyn`
-- **Tests:** 3/5 matched
-
-### 3. proxy
+### 2. proxy
 
 - **Target:** `tungstenite.Proxy`
 - **Similarity:** 0.37
@@ -62,6 +50,18 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 3/4 matched
 - **Missing types:** `MockStream`
 - **Tests:** 6/13 matched
+
+### 3. headers.sec_websocket_extensions
+
+- **Target:** `headers.SecWebsocketExtensions`
+- **Similarity:** 0.27
+- **Dependents:** 1
+- **Priority Score:** 1133007.4
+- **Functions:** 12/21 matched (target 31)
+- **Missing functions:** `name`, `params`, `value`, `from`, `from_iter`, `from_str`, `fmt`, `test_decode`, `test_encode`
+- **Types:** 5/9 matched (target 6)
+- **Missing types:** `Item`, `IntoIter`, `Err`, `WriteToDyn`
+- **Tests:** 3/5 matched
 
 ### 4. deflate.config
 
@@ -102,11 +102,11 @@ Every matched file is listed below with function and type symbol parity.
 ### 7. frame.utf8
 
 - **Target:** `frame.Utf8`
-- **Similarity:** 0.24
+- **Similarity:** 0.33
 - **Dependents:** 0
-- **Priority Score:** 101707.6
-- **Functions:** 6/14 matched (target 16)
-- **Missing functions:** `deref`, `as_ref`, `borrow`, `hash`, `partial_cmp`, `cmp`, `eq`, `fmt`
+- **Priority Score:** 81706.7
+- **Functions:** 8/14 matched (target 22)
+- **Missing functions:** `deref`, `hash`, `partial_cmp`, `cmp`, `eq`, `fmt`
 - **Types:** 1/3 matched (target 2)
 - **Missing types:** `Target`, `Error`
 - **Tests:** 1/1 matched
