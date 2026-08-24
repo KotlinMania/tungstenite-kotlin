@@ -144,15 +144,22 @@ public class FrameCodec(
             }
 
             // Not enough data in buffer; read into available buffer
-            val temp = ByteArray(inBufMaxRead)
-            val readCount = readFn(temp)
-            if (readCount <= 0) {
+            if (readIn(readFn) <= 0) {
                 return null
             }
+        }
+    }
+
+    /** Read into available inBuffer capacity. */
+    public fun readIn(readFn: (ByteArray) -> Int): Int {
+        val temp = ByteArray(inBufMaxRead)
+        val readCount = readFn(temp)
+        if (readCount > 0) {
             for (i in 0 until readCount) {
                 inBuffer.add(temp[i])
             }
         }
+        return readCount
     }
 
     /** Writes a frame into the out buffer and flushes if over outBufferWriteLen. */

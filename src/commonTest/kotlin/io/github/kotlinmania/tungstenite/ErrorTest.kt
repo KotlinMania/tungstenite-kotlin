@@ -6,7 +6,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class ErrorTest {
-    // Unported: error_size, tls_error_size, protocol_error_size test Rust memory layout (std::mem::size_of) which has no Kotlin equivalent.
+    // Unported: errorSize, tlsErrorSize, protocolErrorSize test Rust memory layout which has no Kotlin equivalent.
 
     @Test
     fun testErrorHierarchy() {

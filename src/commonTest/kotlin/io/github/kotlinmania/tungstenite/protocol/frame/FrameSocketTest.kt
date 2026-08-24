@@ -39,7 +39,7 @@ class FrameSocketTest {
     }
 
     @Test
-    fun testReadFrames() {
+    fun readFrames() {
         val raw =
             byteArrayOf(
                 0x82.toByte(),
@@ -83,7 +83,7 @@ class FrameSocketTest {
     }
 
     @Test
-    fun testFromPartiallyRead() {
+    fun fromPartiallyRead() {
         val raw = byteArrayOf(0x02, 0x03, 0x04, 0x05, 0x06, 0x07)
         val cursor = ByteCursor(raw)
         val part = byteArrayOf(0x82.toByte(), 0x07.toByte(), 0x01)
@@ -98,7 +98,7 @@ class FrameSocketTest {
     }
 
     @Test
-    fun testWriteFrames() {
+    fun writeFrames() {
         val writer = ByteWriter()
         val sock = FrameSocket.new(writer)
 
@@ -122,7 +122,7 @@ class FrameSocketTest {
     }
 
     @Test
-    fun testParseOverflow() {
+    fun parseOverflow() {
         val raw =
             byteArrayOf(
                 0x83.toByte(),
@@ -150,7 +150,7 @@ class FrameSocketTest {
     }
 
     @Test
-    fun testSizeLimitHit() {
+    fun sizeLimitHit() {
         val raw =
             byteArrayOf(
                 0x82.toByte(),

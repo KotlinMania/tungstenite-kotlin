@@ -34,7 +34,7 @@ internal fun applyMaskFallback(
     }
 }
 
-/** Faster version of `apply_mask()` which operates on 4-byte blocks. */
+/** Faster version of [applyMask] which operates on 4-byte blocks. */
 public fun applyMaskFast32(
     buf: ByteArray,
     mask: ByteArray,

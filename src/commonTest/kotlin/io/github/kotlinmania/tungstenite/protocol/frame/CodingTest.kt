@@ -8,26 +8,26 @@ import kotlin.test.assertTrue
 
 class CodingTest {
     @Test
-    fun opcodeFromUByte() {
+    fun opcodeFromU8() {
         val byte: UByte = 2u
         assertEquals(OpCode.Data(Data.Binary), OpCode.fromUByte(byte))
     }
 
     @Test
-    fun opcodeIntoUByte() {
+    fun opcodeIntoU8() {
         val text: OpCode = OpCode.Data(Data.Text)
         val byte: UByte = text.toUByte()
         assertEquals(1u.toUByte(), byte)
     }
 
     @Test
-    fun closecodeFromUShort() {
+    fun closecodeFromU16() {
         val byte: UShort = 1008u
         assertEquals(CloseCode.Policy, CloseCode.fromUShort(byte))
     }
 
     @Test
-    fun closecodeIntoUShort() {
+    fun closecodeIntoU16() {
         val text: CloseCode = CloseCode.Away
         val byte: UShort = text.toUShort()
         assertEquals(1001u.toUShort(), byte)
