@@ -211,17 +211,35 @@ private fun parseProxyConfig(value: String): ProxyConfig {
         throw TungsteniteException.Url(UrlError.InvalidProxyConfig(value))
     }
 
-    val atIndex = authority.lastIndexOf('@')
-    val (userinfo, hostport) =
-        if (atIndex != -1) {
-            Pair(authority.substring(0, atIndex), authority.substring(atIndex + 1))
-        } else {
-            Pair(null, authority)
-        }
+    val (userinfo, hostport) = splitUserinfo(authority)
+    val (host, port) = parseHostPort(hostport, scheme)
+    val auth = userinfo?.let { parseUserinfo(it) }
 
+    return ProxyConfig(scheme = scheme, host = host, port = port, auth = auth)
+}
+
+/**
+ * Split authority into userinfo and hostport.
+ */
+public fun splitUserinfo(authority: String): Pair<String?, String> {
+    val atIndex = authority.lastIndexOf('@')
+    return if (atIndex != -1) {
+        Pair(authority.substring(0, atIndex), authority.substring(atIndex + 1))
+    } else {
+        Pair(null, authority)
+    }
+}
+
+/**
+ * Parse host and port from a hostport token.
+ */
+public fun parseHostPort(
+    hostport: String,
+    scheme: ProxyScheme,
+): Pair<String, Int> {
     val (hostRaw, portOpt) = splitHostPort(hostport)
     if (hostRaw.isEmpty()) {
-        throw TungsteniteException.Url(UrlError.InvalidProxyConfig(value))
+        throw TungsteniteException.Url(UrlError.InvalidProxyConfig(hostport))
     }
     val host = normalizeHost(hostRaw)
     val port =
@@ -229,10 +247,210 @@ private fun parseProxyConfig(value: String): ProxyConfig {
             ProxyScheme.Http -> 80
             ProxyScheme.Socks5, ProxyScheme.Socks5h -> 1080
         }
+    return Pair(host, port)
+}
 
-    val auth = userinfo?.let { parseUserinfo(it) }
+/**
+ * Read HTTP CONNECT response using a read function.
+ */
+public fun readConnectResponse(readFn: (ByteArray) -> Int): ByteArray {
+    val buf = ArrayList<Byte>()
+    val chunk = ByteArray(512)
+    while (true) {
+        if (buf.size >= MAX_CONNECT_RESPONSE_SIZE) {
+            throw TungsteniteException.Url(UrlError.ProxyConnect("HTTP CONNECT response too large"))
+        }
+        val read = readFn(chunk)
+        if (read <= 0) break
+        for (i in 0 until read) {
+            buf.add(chunk[i])
+        }
+        if (buf.size >= 4) {
+            var found = false
+            for (i in 0..buf.size - 4) {
+                if (buf[i] == '\r'.code.toByte() &&
+                    buf[i + 1] == '\n'.code.toByte() &&
+                    buf[i + 2] == '\r'.code.toByte() &&
+                    buf[i + 3] == '\n'.code.toByte()
+                ) {
+                    found = true
+                    break
+                }
+            }
+            if (found) break
+        }
+    }
+    return buf.toByteArray()
+}
 
-    return ProxyConfig(scheme = scheme, host = host, port = port, auth = auth)
+/**
+ * Perform HTTP CONNECT handshake over given read/write functions.
+ */
+public fun httpConnect(
+    readFn: (ByteArray) -> Int,
+    writeFn: (ByteArray) -> Unit,
+    host: String,
+    port: Int,
+    auth: ProxyAuth? = null,
+) {
+    val authority = "$host:$port"
+    val request = buildHttpConnectRequest(authority, auth)
+    writeFn(request)
+
+    val response = readConnectResponse(readFn)
+    val status = parseHttpConnectResponse(response)
+    if (status !in 200..299) {
+        throw TungsteniteException.Url(
+            UrlError.ProxyConnect("HTTP CONNECT failed with status $status"),
+        )
+    }
+}
+
+/**
+ * Perform SOCKS5 handshake over given read/write functions.
+ */
+public fun socks5Handshake(
+    readFn: (ByteArray) -> Int,
+    writeFn: (ByteArray) -> Unit,
+    host: String,
+    port: Int,
+    auth: ProxyAuth? = null,
+) {
+    val methods =
+        if (auth != null) {
+            byteArrayOf(0x05, 0x02, 0x00, 0x02)
+        } else {
+            byteArrayOf(0x05, 0x01, 0x00)
+        }
+    writeFn(methods)
+
+    val choice = readExactBytes(readFn, 2)
+    if (choice[0] != 0x05.toByte()) {
+        throw TungsteniteException.Url(UrlError.ProxyConnect("SOCKS5: invalid response version"))
+    }
+
+    when (choice[1].toInt() and 0xFF) {
+        0x00 -> {}
+        0x02 -> {
+            val authCreds =
+                auth
+                    ?: throw TungsteniteException.Url(
+                        UrlError.ProxyConnect("SOCKS5: proxy requested auth, but none provided"),
+                    )
+            socks5UserpassAuth(readFn, writeFn, authCreds)
+        }
+        0xFF -> {
+            throw TungsteniteException.Url(
+                UrlError.ProxyConnect("SOCKS5: no acceptable authentication method"),
+            )
+        }
+        else -> {
+            throw TungsteniteException.Url(
+                UrlError.ProxyConnect("SOCKS5: unsupported authentication method"),
+            )
+        }
+    }
+
+    sendSocks5Connect(readFn, writeFn, host, port)
+}
+
+/**
+ * Perform SOCKS5 username/password auth.
+ */
+public fun socks5UserpassAuth(
+    readFn: (ByteArray) -> Int,
+    writeFn: (ByteArray) -> Unit,
+    auth: ProxyAuth,
+) {
+    val username = auth.username.encodeToByteArray()
+    val password = auth.password.encodeToByteArray()
+
+    if (username.size > 255 || password.size > 255) {
+        throw TungsteniteException.Url(UrlError.ProxyConnect("SOCKS5 auth credentials too long"))
+    }
+
+    val buf = ByteArray(3 + username.size + password.size)
+    buf[0] = 0x01
+    buf[1] = username.size.toByte()
+    username.copyInto(buf, 2)
+    buf[2 + username.size] = password.size.toByte()
+    password.copyInto(buf, 3 + username.size)
+
+    writeFn(buf)
+
+    val response = readExactBytes(readFn, 2)
+    if (response[0] != 0x01.toByte() || response[1] != 0x00.toByte()) {
+        throw TungsteniteException.Url(UrlError.ProxyConnect("SOCKS5 authentication failed"))
+    }
+}
+
+/**
+ * Send SOCKS5 CONNECT command.
+ */
+public fun sendSocks5Connect(
+    readFn: (ByteArray) -> Int,
+    writeFn: (ByteArray) -> Unit,
+    host: String,
+    port: Int,
+) {
+    val hostBytes = host.encodeToByteArray()
+    if (hostBytes.size > 255) {
+        throw TungsteniteException.Url(UrlError.ProxyConnect("SOCKS5 domain name too long"))
+    }
+
+    val req = ByteArray(4 + 1 + hostBytes.size + 2)
+    req[0] = 0x05
+    req[1] = 0x01
+    req[2] = 0x00
+    req[3] = 0x03
+    req[4] = hostBytes.size.toByte()
+    hostBytes.copyInto(req, 5)
+    val portOffset = 5 + hostBytes.size
+    req[portOffset] = ((port ushr 8) and 0xFF).toByte()
+    req[portOffset + 1] = (port and 0xFF).toByte()
+
+    writeFn(req)
+
+    val header = readExactBytes(readFn, 4)
+    if (header[0] != 0x05.toByte()) {
+        throw TungsteniteException.Url(UrlError.ProxyConnect("SOCKS5: invalid response version"))
+    }
+    if (header[1] != 0x00.toByte()) {
+        throw TungsteniteException.Url(
+            UrlError.ProxyConnect("SOCKS5: connection failed with code ${header[1]}"),
+        )
+    }
+
+    val addrLen =
+        when (header[3].toInt() and 0xFF) {
+            0x01 -> 4
+            0x03 -> {
+                val lenByte = readExactBytes(readFn, 1)
+                lenByte[0].toInt() and 0xFF
+            }
+            0x04 -> 16
+            else -> throw TungsteniteException.Url(UrlError.ProxyConnect("SOCKS5: invalid address type"))
+        }
+
+    val discard = readExactBytes(readFn, addrLen + 2)
+    discard.size // read completed
+}
+
+private fun readExactBytes(
+    readFn: (ByteArray) -> Int,
+    count: Int,
+): ByteArray {
+    val result = ByteArray(count)
+    var readTotal = 0
+    val single = ByteArray(1)
+    while (readTotal < count) {
+        val n = readFn(single)
+        if (n <= 0) {
+            throw TungsteniteException.Url(UrlError.ProxyConnect("Unexpected EOF during proxy handshake"))
+        }
+        result[readTotal++] = single[0]
+    }
+    return result
 }
 
 private fun parseUserinfo(userinfo: String): ProxyAuth {
