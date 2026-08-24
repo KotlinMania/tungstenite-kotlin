@@ -10,7 +10,7 @@ class ErrorTest {
 
     @Test
     fun testErrorHierarchy() {
-        val err = TungsteniteException.Protocol(ProtocolError.WrongHttpMethod)
+        val err = TungsteniteException.ProtocolViolation(ProtocolError.WrongHttpMethod)
         assertTrue(err.message!!.contains("Unsupported HTTP method"))
         assertEquals("Unsupported HTTP method used - only GET is allowed", ProtocolError.WrongHttpMethod.toString())
 

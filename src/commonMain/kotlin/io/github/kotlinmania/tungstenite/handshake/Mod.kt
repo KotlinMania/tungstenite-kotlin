@@ -63,7 +63,7 @@ public fun versionAsStr(ver: String): String =
         "HTTP/0.9" -> "HTTP/0.9"
         "HTTP/1.0" -> "HTTP/1.0"
         "HTTP/1.1" -> "HTTP/1.1"
-        else -> throw io.github.kotlinmania.tungstenite.TungsteniteException.Protocol(
+        else -> throw io.github.kotlinmania.tungstenite.TungsteniteException.ProtocolViolation(
             io.github.kotlinmania.tungstenite.ProtocolError.WrongHttpVersion,
         )
     }

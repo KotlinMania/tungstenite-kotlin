@@ -187,11 +187,11 @@ public data class FrameHeader(
             when (opcode) {
                 is OpCode.Control ->
                     if (opcode.code is Control.Reserved) {
-                        throw TungsteniteException.Protocol(ProtocolError.InvalidOpcode((first and 0x0F).toUByte()))
+                        throw TungsteniteException.ProtocolViolation(ProtocolError.InvalidOpcode((first and 0x0F).toUByte()))
                     }
                 is OpCode.Data ->
                     if (opcode.code is Data.Reserved) {
-                        throw TungsteniteException.Protocol(ProtocolError.InvalidOpcode((first and 0x0F).toUByte()))
+                        throw TungsteniteException.ProtocolViolation(ProtocolError.InvalidOpcode((first and 0x0F).toUByte()))
                     }
             }
 
@@ -221,10 +221,6 @@ public data class Frame(
 
     public fun isEmpty(): Boolean = len() == 0
 
-    public fun header(): FrameHeader = header
-
-    public fun payload(): ByteArray = payload.asSlice()
-
     public fun isMasked(): Boolean = header.mask != null
 
     public fun setRandomMask() {
@@ -243,7 +239,7 @@ public data class Frame(
         val bytes = payload.asSlice()
         return when (bytes.size) {
             0 -> null
-            1 -> throw TungsteniteException.Protocol(ProtocolError.InvalidCloseSequence)
+            1 -> throw TungsteniteException.ProtocolViolation(ProtocolError.InvalidCloseSequence)
             else -> {
                 val codeVal = (((bytes[0].toInt() and 0xFF) shl 8) or (bytes[1].toInt() and 0xFF)).toUShort()
                 val code = CloseCode.fromUShort(codeVal)

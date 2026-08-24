@@ -27,48 +27,48 @@ public class NoCallback : Callback {
  */
 public fun createResponse(request: Request): Response {
     if (request.method != "GET") {
-        throw TungsteniteException.Protocol(ProtocolError.WrongHttpMethod)
+        throw TungsteniteException.ProtocolViolation(ProtocolError.WrongHttpMethod)
     }
     if (request.version != "HTTP/1.1") {
-        throw TungsteniteException.Protocol(ProtocolError.WrongHttpVersion)
+        throw TungsteniteException.ProtocolViolation(ProtocolError.WrongHttpVersion)
     }
 
     val connectionHeader =
         request.headers.entries
             .firstOrNull {
                 it.key.equals("Connection", ignoreCase = true)
-            }?.value ?: throw TungsteniteException.Protocol(ProtocolError.MissingConnectionUpgradeHeader)
+            }?.value ?: throw TungsteniteException.ProtocolViolation(ProtocolError.MissingConnectionUpgradeHeader)
 
     val hasUpgrade = connectionHeader.split(',', ' ').any { it.trim().equals("Upgrade", ignoreCase = true) }
     if (!hasUpgrade) {
-        throw TungsteniteException.Protocol(ProtocolError.MissingConnectionUpgradeHeader)
+        throw TungsteniteException.ProtocolViolation(ProtocolError.MissingConnectionUpgradeHeader)
     }
 
     val upgradeHeader =
         request.headers.entries
             .firstOrNull {
                 it.key.equals("Upgrade", ignoreCase = true)
-            }?.value ?: throw TungsteniteException.Protocol(ProtocolError.MissingUpgradeWebSocketHeader)
+            }?.value ?: throw TungsteniteException.ProtocolViolation(ProtocolError.MissingUpgradeWebSocketHeader)
 
     if (!upgradeHeader.trim().equals("websocket", ignoreCase = true)) {
-        throw TungsteniteException.Protocol(ProtocolError.MissingUpgradeWebSocketHeader)
+        throw TungsteniteException.ProtocolViolation(ProtocolError.MissingUpgradeWebSocketHeader)
     }
 
     val versionHeader =
         request.headers.entries
             .firstOrNull {
                 it.key.equals("Sec-WebSocket-Version", ignoreCase = true)
-            }?.value ?: throw TungsteniteException.Protocol(ProtocolError.MissingSecWebSocketVersionHeader)
+            }?.value ?: throw TungsteniteException.ProtocolViolation(ProtocolError.MissingSecWebSocketVersionHeader)
 
     if (versionHeader.trim() != "13") {
-        throw TungsteniteException.Protocol(ProtocolError.MissingSecWebSocketVersionHeader)
+        throw TungsteniteException.ProtocolViolation(ProtocolError.MissingSecWebSocketVersionHeader)
     }
 
     val key =
         request.headers.entries
             .firstOrNull {
                 it.key.equals("Sec-WebSocket-Key", ignoreCase = true)
-            }?.value ?: throw TungsteniteException.Protocol(ProtocolError.MissingSecWebSocketKey)
+            }?.value ?: throw TungsteniteException.ProtocolViolation(ProtocolError.MissingSecWebSocketKey)
 
     val acceptKey = deriveAcceptKey(key)
 
@@ -175,12 +175,12 @@ internal object RequestParser : TryParse<Request> {
         val headerText = text.substring(0, headerEnd)
         val lines = headerText.lines()
         if (lines.isEmpty()) {
-            return Result.failure(TungsteniteException.Protocol(ProtocolError.Httparse("empty request")))
+            return Result.failure(TungsteniteException.ProtocolViolation(ProtocolError.Httparse("empty request")))
         }
 
         val requestLine = lines[0].trim().split(Regex("\\s+"))
         if (requestLine.size < 3) {
-            return Result.failure(TungsteniteException.Protocol(ProtocolError.Httparse("invalid request line")))
+            return Result.failure(TungsteniteException.ProtocolViolation(ProtocolError.Httparse("invalid request line")))
         }
         val method = requestLine[0]
         val uri = requestLine[1]

@@ -26,7 +26,7 @@ class UtilTest {
 
     @Test
     fun testNoBlockOtherTungsteniteError() {
-        val err = TungsteniteException.Protocol(ProtocolError.HandshakeIncomplete)
+        val err = TungsteniteException.ProtocolViolation(ProtocolError.HandshakeIncomplete)
         val res: Result<String> = Result.failure(err)
         val noBlocked = res.noBlock()
         assertTrue(noBlocked.isFailure)

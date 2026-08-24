@@ -133,7 +133,7 @@ public class ClientHandshake<S>(
 
                 if (wsAccept != acceptKey) {
                     return Result.failure(
-                        TungsteniteException.Protocol(ProtocolError.SecWebSocketAcceptKeyMismatch),
+                        TungsteniteException.ProtocolViolation(ProtocolError.SecWebSocketAcceptKeyMismatch),
                     )
                 }
 
@@ -156,10 +156,10 @@ public class ClientHandshake<S>(
             config: WebSocketConfig? = null,
         ): MidHandshake<ClientHandshake<S>> {
             if (request.method != "GET") {
-                throw TungsteniteException.Protocol(ProtocolError.WrongHttpMethod)
+                throw TungsteniteException.ProtocolViolation(ProtocolError.WrongHttpMethod)
             }
             if (request.version != "HTTP/1.1") {
-                throw TungsteniteException.Protocol(ProtocolError.WrongHttpVersion)
+                throw TungsteniteException.ProtocolViolation(ProtocolError.WrongHttpVersion)
             }
 
             val client = ClientHandshake(stream, request, config)
@@ -195,12 +195,12 @@ internal object ResponseParser : TryParse<Response> {
         val headerText = text.substring(0, headerEnd)
         val lines = headerText.lines()
         if (lines.isEmpty()) {
-            return Result.failure(TungsteniteException.Protocol(ProtocolError.Httparse("empty response")))
+            return Result.failure(TungsteniteException.ProtocolViolation(ProtocolError.Httparse("empty response")))
         }
 
         val statusLine = lines[0].trim().split(Regex("\\s+"))
         if (statusLine.size < 2) {
-            return Result.failure(TungsteniteException.Protocol(ProtocolError.Httparse("invalid status line")))
+            return Result.failure(TungsteniteException.ProtocolViolation(ProtocolError.Httparse("invalid status line")))
         }
         val statusCode = statusLine[1].toIntOrNull() ?: 101
         val version = statusLine[0]

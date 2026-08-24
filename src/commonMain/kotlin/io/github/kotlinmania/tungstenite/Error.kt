@@ -44,7 +44,7 @@ public sealed class TungsteniteException(
     ) : TungsteniteException("Space limit exceeded: $error")
 
     /** Protocol violation. */
-    public class Protocol(
+    public class ProtocolViolation(
         public val error: ProtocolError,
     ) : TungsteniteException("WebSocket protocol error: $error")
 
