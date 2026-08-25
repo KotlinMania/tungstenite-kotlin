@@ -70,7 +70,7 @@ public data class PermessageDeflateConfig(
     public var clientNoContextTakeover: Boolean = false,
     public var serverMaxWindowBits: Int? = null,
     public var clientMaxWindowBits: Int? = null,
-    public var clientMaxWindowBitsPresent: Boolean = false,
+    public var clientMaxWindowBitsPresent: Boolean = clientMaxWindowBits != null,
     public var compressionLevel: Int = 6,
 ) {
     /**
