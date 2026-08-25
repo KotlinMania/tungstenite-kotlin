@@ -120,7 +120,12 @@ public fun generateRequest(
     val version = versionAsStr(request.version)
 
     val sb = StringBuilder()
-    sb.append("GET ").append(path).append(" ").append(version).append("\r\n")
+    sb
+        .append("GET ")
+        .append(path)
+        .append(" ")
+        .append(version)
+        .append("\r\n")
 
     val websocketHeaders = listOf("Host", "Connection", "Upgrade", "Sec-WebSocket-Version", "Sec-WebSocket-Key")
 
@@ -136,7 +141,11 @@ public fun generateRequest(
         val entry =
             remainingHeaders.entries.firstOrNull { it.key.equals(header, ignoreCase = true) }
                 ?: throw TungsteniteException.ProtocolViolation(ProtocolError.InvalidHeader(header))
-        sb.append(header).append(": ").append(entry.value).append("\r\n")
+        sb
+            .append(header)
+            .append(": ")
+            .append(entry.value)
+            .append("\r\n")
         remainingHeaders.remove(entry.key)
     }
 
@@ -161,7 +170,11 @@ public fun generateRequest(
         } else if (name.equals("origin", ignoreCase = true)) {
             name = "Origin"
         }
-        sb.append(name).append(": ").append(v).append("\r\n")
+        sb
+            .append(name)
+            .append(": ")
+            .append(v)
+            .append("\r\n")
     }
 
     sb.append("\r\n")

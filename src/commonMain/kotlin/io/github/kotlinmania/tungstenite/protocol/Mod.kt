@@ -4,7 +4,6 @@ package io.github.kotlinmania.tungstenite.protocol
 import io.github.kotlinmania.tungstenite.CapacityError
 import io.github.kotlinmania.tungstenite.ProtocolError
 import io.github.kotlinmania.tungstenite.TungsteniteException
-import io.github.kotlinmania.tungstenite.extensions.Extensions
 import io.github.kotlinmania.tungstenite.extensions.ExtensionsConfig
 import io.github.kotlinmania.tungstenite.protocol.frame.CloseFrame
 import io.github.kotlinmania.tungstenite.protocol.frame.Frame
