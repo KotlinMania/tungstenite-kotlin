@@ -19,12 +19,14 @@ class ServerTest {
     @Test
     fun requestReplying() {
         val data =
-            ("GET /script.ws HTTP/1.1\r\n" +
-                "Host: foo.com\r\n" +
-                "Connection: upgrade\r\n" +
-                "Upgrade: websocket\r\n" +
-                "Sec-WebSocket-Version: 13\r\n" +
-                "Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==\r\n\r\n").encodeToByteArray()
+            (
+                "GET /script.ws HTTP/1.1\r\n" +
+                    "Host: foo.com\r\n" +
+                    "Connection: upgrade\r\n" +
+                    "Upgrade: websocket\r\n" +
+                    "Sec-WebSocket-Version: 13\r\n" +
+                    "Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==\r\n\r\n"
+            ).encodeToByteArray()
         val parsed = Request.tryParse(data).getOrThrow()
         assertNotNull(parsed)
         val (_, req) = parsed
