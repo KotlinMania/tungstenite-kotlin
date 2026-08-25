@@ -30,6 +30,14 @@ class ModTest {
     }
 
     @Test
+    fun acceptOffersWithDeflateDisabled() {
+        val config = ExtensionsConfig.default()
+        val (ext, resp) = config.acceptOffers(SecWebsocketExtensions(emptyList()))
+        assertNull(ext.perMessageCompression)
+        assertNull(resp)
+    }
+
+    @Test
     fun acceptOffersWithDeflateEnabled() {
         val config = ExtensionsConfig(permessageDeflate = DeflateConfig.new())
         val extensions =
@@ -40,6 +48,34 @@ class ModTest {
                 ),
             )
         val (ext, resp) = config.acceptOffers(extensions)
+        assertNotNull(ext.perMessageCompression)
+        assertNotNull(resp)
+        assertEquals(1, resp.extensions.size)
+        assertEquals(EXTENSION_NAME, resp.extensions[0].name)
+    }
+
+    @Test
+    fun acceptOffersPicksFirstAcceptableOffer() {
+        val config =
+            ExtensionsConfig(
+                permessageDeflate =
+                    DeflateConfig.new().setMaxWindowBits(Role.Client, 11),
+            )
+        val (ext, resp) =
+            config.acceptOffers(
+                SecWebsocketExtensions(
+                    listOf(
+                        WebsocketProtocolExtension(
+                            EXTENSION_NAME,
+                            listOf(WebsocketExtensionParam("client_max_window_bits", "10")),
+                        ),
+                        WebsocketProtocolExtension(
+                            EXTENSION_NAME,
+                            listOf(WebsocketExtensionParam("client_max_window_bits", "11")),
+                        ),
+                    ),
+                ),
+            )
         assertNotNull(ext.perMessageCompression)
         assertNotNull(resp)
         assertEquals(1, resp.extensions.size)

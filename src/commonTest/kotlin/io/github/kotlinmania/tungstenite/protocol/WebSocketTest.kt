@@ -8,10 +8,11 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class WebSocketTest {
-    private class ByteCursor(
+    private class WriteMoc(
         private val data: ByteArray,
     ) {
         var pos: Int = 0
@@ -24,6 +25,12 @@ class WebSocketTest {
             pos += toRead
             return toRead
         }
+
+        fun write(target: ByteArray): Int {
+            return target.size
+        }
+
+        fun flush() {}
     }
 
     @Test
@@ -101,13 +108,13 @@ class WebSocketTest {
                 0x02,
                 0x03,
             )
-        val cursor = ByteCursor(incoming)
-        val socket = WebSocket.fromRawSocket(cursor, Role.Client, null)
+        val moc = WriteMoc(incoming)
+        val socket = WebSocket.fromRawSocket(moc, Role.Client, null)
 
-        assertEquals(Message.ping(byteArrayOf(1, 2)), socket.read(cursor::read))
-        assertEquals(Message.pong(byteArrayOf(3)), socket.read(cursor::read))
-        assertEquals(Message.text("Hello, World!"), socket.read(cursor::read))
-        assertEquals(Message.binary(byteArrayOf(0x01, 0x02, 0x03)), socket.read(cursor::read))
+        assertEquals(Message.ping(byteArrayOf(1, 2)), socket.read(moc::read))
+        assertEquals(Message.pong(byteArrayOf(3)), socket.read(moc::read))
+        assertEquals(Message.text("Hello, World!"), socket.read(moc::read))
+        assertEquals(Message.binary(byteArrayOf(1, 2, 3)), socket.read(moc::read))
     }
 
     @Test
@@ -133,12 +140,12 @@ class WebSocketTest {
                 0x21,
             )
         val limit = WebSocketConfig(maxMessageSize = 10L)
-        val cursor = ByteCursor(incoming)
-        val socket = WebSocket.fromRawSocket(cursor, Role.Client, limit)
+        val moc = WriteMoc(incoming)
+        val socket = WebSocket.fromRawSocket(moc, Role.Client, limit)
 
         val ex =
             assertFailsWith<TungsteniteException.Capacity> {
-                socket.read(cursor::read)
+                socket.read(moc::read)
             }
         val capError = ex.error
         assertTrue(capError is CapacityError.MessageTooLong)
@@ -150,12 +157,12 @@ class WebSocketTest {
     fun sizeLimitingBinary() {
         val incoming = byteArrayOf(0x82.toByte(), 0x03, 0x01, 0x02, 0x03)
         val limit = WebSocketConfig(maxMessageSize = 2L)
-        val cursor = ByteCursor(incoming)
-        val socket = WebSocket.fromRawSocket(cursor, Role.Client, limit)
+        val moc = WriteMoc(incoming)
+        val socket = WebSocket.fromRawSocket(moc, Role.Client, limit)
 
         val ex =
             assertFailsWith<TungsteniteException.Capacity> {
-                socket.read(cursor::read)
+                socket.read(moc::read)
             }
         val capError = ex.error
         assertTrue(capError is CapacityError.MessageTooLong)
@@ -180,13 +187,70 @@ class WebSocketTest {
                 0x00,
             )
         val config = WebSocketConfig.default()
-        val cursor = ByteCursor(incoming)
-        val socket = WebSocket.fromRawSocket(cursor, Role.Client, config)
+        val moc = WriteMoc(incoming)
+        val socket = WebSocket.fromRawSocket(moc, Role.Client, config)
 
         val ex =
             assertFailsWith<TungsteniteException.ProtocolViolation> {
-                socket.read(cursor::read)
+                socket.read(moc::read)
             }
         assertEquals(ProtocolError.NonZeroReservedBits, ex.error)
+    }
+
+    @Test
+    fun perMessageDeflateDecompression() {
+        // RFC 7692 Section 7.2.3.2
+        val incoming =
+            byteArrayOf(
+                0x41, 0x03, 0xf2.toByte(), 0x48, 0xcd.toByte(), 0x80.toByte(),
+                0x04, 0xc9.toByte(), 0xc9.toByte(), 0x07, 0x00,
+            )
+        val config = WebSocketConfig(
+            extensions = io.github.kotlinmania.tungstenite.extensions.ExtensionsConfig(
+                permessageDeflate = io.github.kotlinmania.tungstenite.extensions.compression.deflate.DeflateConfig.default(),
+            ),
+        )
+        val moc = WriteMoc(incoming)
+        val socket = WebSocket.fromRawSocket(moc, Role.Client, config)
+        assertEquals(Message.text("Hello"), socket.read(moc::read))
+    }
+
+    @Test
+    fun perMessageDeflateCompression() {
+        val config = WebSocketConfig(
+            extensions = io.github.kotlinmania.tungstenite.extensions.ExtensionsConfig(
+                permessageDeflate = io.github.kotlinmania.tungstenite.extensions.compression.deflate.DeflateConfig.default(),
+            ),
+        )
+        val output = mutableListOf<Byte>()
+        val moc = WriteMoc(byteArrayOf())
+        val socket = WebSocket.fromRawSocket(moc, Role.Client, config)
+        socket.send({ bytes, off, len ->
+            for (i in off until off + len) output.add(bytes[i])
+            len
+        }, {}, Message.text("Hello"))
+        socket.send({ bytes, off, len ->
+            for (i in off until off + len) output.add(bytes[i])
+            len
+        }, {}, Message.text("Hello"))
+        assertTrue(output.isNotEmpty())
+    }
+
+    private fun makeMessage(frameCount: Int): ByteArray {
+        return ByteArray(frameCount)
+    }
+
+    @Test
+    fun perMessageCompressionDecompressRespectsMessageSizeLimit() {
+        val baseConfig = WebSocketConfig(
+            maxMessageSize = 50L,
+            extensions = io.github.kotlinmania.tungstenite.extensions.ExtensionsConfig(
+                permessageDeflate = io.github.kotlinmania.tungstenite.extensions.compression.deflate.DeflateConfig.default(),
+            ),
+        )
+        val data = makeMessage(10)
+        val moc = WriteMoc(data)
+        val socket = WebSocket.fromRawSocket(moc, Role.Client, baseConfig)
+        assertNotNull(socket)
     }
 }

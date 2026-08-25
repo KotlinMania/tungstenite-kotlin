@@ -119,4 +119,30 @@ class SecWebsocketExtensionsTest {
             assertEquals(expectedLen, bytes.size)
         }
     }
+
+    private fun testDecode(values: List<String>): SecWebsocketExtensions? {
+        val combined = values.joinToString(", ")
+        return try {
+            SecWebsocketExtensions.parse(combined)
+        } catch (_: Exception) {
+            null
+        }
+    }
+
+    private fun testEncode(header: SecWebsocketExtensions): Map<String, String> {
+        return mapOf("Sec-WebSocket-Extensions" to header.headerValue())
+    }
+
+    @Test
+    fun testDecode() {
+        val decoded = testDecode(listOf("foo", "bar; baz=2"))
+        assertEquals(2, decoded?.len())
+    }
+
+    @Test
+    fun testEncode() {
+        val ext = SecWebsocketExtensions(listOf(WebsocketProtocolExtension("foo", emptyList())))
+        val encoded = testEncode(ext)
+        assertEquals("foo", encoded["Sec-WebSocket-Extensions"])
+    }
 }

@@ -22,7 +22,7 @@ class ConfigTest {
     }
 
     @Test
-    fun parseValidParams() {
+    fun deflateConfigParseParamsValid() {
         val params =
             listOf(
                 WebsocketExtensionParam("server_no_context_takeover"),
@@ -52,7 +52,7 @@ class ConfigTest {
     }
 
     @Test
-    fun deflateRejectUnknownParameters() {
+    fun deflateRejectsUnknownParameters() {
         assertFailsWith<ParameterError.UnknownParameter> {
             PermessageDeflateConfig.parseParams(listOf(WebsocketExtensionParam("unknown", null)))
         }
@@ -67,7 +67,7 @@ class ConfigTest {
     }
 
     @Test
-    fun deflateRejectDuplicateParameters() {
+    fun deflateRejectsDuplicateParameters() {
         assertFailsWith<ParameterError.DuplicateParameter> {
             PermessageDeflateConfig.parseParams(
                 listOf(
@@ -112,7 +112,58 @@ class ConfigTest {
     }
 
     @Test
-    fun interopMatrix() {
+    fun rejectsUnsupportedClientMaxWindowBitsResponse() {
+        val clientConfig = DeflateConfig.new()
+        assertEquals(15, clientConfig.clientMaxWindowBits)
+
+        val serverResponse = PermessageDeflateConfig(
+            serverMaxWindowBits = 15,
+            clientMaxWindowBits = 12,
+        )
+        val accepted = clientConfig.acceptResponse(serverResponse)
+        assertNotNull(accepted)
+        assertEquals(12, accepted.clientMaxWindowBits)
+
+        val constrainedClient = clientConfig.setMaxWindowBits(Role.Client, 11)
+        assertFailsWith<NegotiationError.UnsupportedClientMaxWindowBitsValue> {
+            constrainedClient.acceptResponse(serverResponse)
+        }
+    }
+
+    private fun parseExtensions(raw: String): io.github.kotlinmania.tungstenite.extensions.headers.SecWebsocketExtensions {
+        val lines = raw.lines()
+        val headerLine = lines.firstOrNull { it.startsWith("Sec-WebSocket-Extensions:", ignoreCase = true) }
+        val value = headerLine?.substringAfter(":")?.trim() ?: ""
+        return io.github.kotlinmania.tungstenite.extensions.headers.SecWebsocketExtensions.parse(value)
+    }
+
+    private fun parseDeflates(
+        extensions: io.github.kotlinmania.tungstenite.extensions.headers.SecWebsocketExtensions,
+    ): List<PermessageDeflateConfig> {
+        return extensions.extensions
+            .filter { it.name == PER_MESSAGE_DEFLATE }
+            .map { PermessageDeflateConfig.parseParams(it.params) }
+    }
+
+    @Test
+    fun simplest() {
+        val clientHeaders = parseExtensions("Sec-WebSocket-Extensions: permessage-deflate\r\n\r\n")
+        val clientOffers = parseDeflates(clientHeaders)
+        val serverConfig = DeflateConfig.default()
+        val accepted = clientOffers.firstNotNullOfOrNull { serverConfig.acceptOffer(it) }
+        assertNotNull(accepted)
+    }
+
+    @Test
+    fun clientMultipleOffers() {
+        val raw = "Sec-WebSocket-Extensions: permessage-deflate; server_max_window_bits=10; client_max_window_bits, permessage-deflate; client_max_window_bits\r\n\r\n"
+        val clientHeaders = parseExtensions(raw)
+        val clientOffers = parseDeflates(clientHeaders)
+        assertEquals(2, clientOffers.size)
+    }
+
+    @Test
+    fun interop() {
         val modifiers: List<(DeflateConfig) -> DeflateConfig> =
             listOf(
                 { cfg -> cfg.setNoContextTakeover(Role.Client, true) },

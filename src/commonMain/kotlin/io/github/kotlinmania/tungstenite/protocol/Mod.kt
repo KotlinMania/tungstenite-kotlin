@@ -1,9 +1,11 @@
 // port-lint: source protocol/mod.rs
 package io.github.kotlinmania.tungstenite.protocol
 
+import io.github.kotlinmania.bytes.Bytes
 import io.github.kotlinmania.tungstenite.CapacityError
 import io.github.kotlinmania.tungstenite.ProtocolError
 import io.github.kotlinmania.tungstenite.TungsteniteException
+import io.github.kotlinmania.tungstenite.extensions.Extensions
 import io.github.kotlinmania.tungstenite.extensions.ExtensionsConfig
 import io.github.kotlinmania.tungstenite.protocol.frame.CloseFrame
 import io.github.kotlinmania.tungstenite.protocol.frame.Frame
@@ -151,6 +153,7 @@ public class WebSocket<Stream>(
 public class WebSocketContext(
     public val role: Role,
     public var config: WebSocketConfig = WebSocketConfig.default(),
+    public var extensions: Extensions = config.extensions?.intoUnnegotiatedContext(role) ?: Extensions(),
 ) {
     public var state: WebSocketState = WebSocketState.Active
     public val frame: FrameCodec = FrameCodec.new(config.readBufferSize)
@@ -169,6 +172,10 @@ public class WebSocketContext(
         config.assertValid()
         frame.setMaxOutBufferLen(config.maxWriteBufferSize)
         frame.setOutBufferWriteLen(config.writeBufferSize)
+        val extCfg = config.extensions
+        if (extCfg != null) {
+            extensions = extCfg.intoUnnegotiatedContext(role)
+        }
     }
 
     public fun canRead(): Boolean = state.canRead()
@@ -193,12 +200,20 @@ public class WebSocketContext(
                         throw e
                     }
                 }
-            } else if (role == Role.Server && !state.canRead()) {
+            } else if (!state.canRead()) {
                 state = WebSocketState.Terminated
                 throw TungsteniteException.ConnectionClosed()
             }
 
-            val msg = readMessageFrame(readFn)
+            val f =
+                frame.readFrame(
+                    readFn = readFn,
+                    maxSize = config.maxFrameSize,
+                    unmask = (role == Role.Server),
+                    acceptUnmasked = config.acceptUnmaskedFrames,
+                ) ?: return null
+
+            val msg = processFrame(f)
             if (msg != null) {
                 return msg
             }
@@ -214,10 +229,25 @@ public class WebSocketContext(
             throw TungsteniteException.ProtocolViolation(ProtocolError.SendAfterClosing)
         }
 
+        val compressor = extensions.perMessageCompressor()
         val frameToSend =
             when (message) {
-                is Message.Text -> Frame.message(message.utf8.asBytes(), OpCode.Data(OpData.Text), true)
-                is Message.Binary -> Frame.message(message.data, OpCode.Data(OpData.Binary), true)
+                is Message.Text -> {
+                    if (compressor != null) {
+                        val compBytes = compressor(message.utf8.asBytes())
+                        Frame.compressedMessage(Bytes.from(compBytes), OpCode.Data(OpData.Text), true)
+                    } else {
+                        Frame.message(message.utf8.bytes, OpCode.Data(OpData.Text), true)
+                    }
+                }
+                is Message.Binary -> {
+                    if (compressor != null) {
+                        val compBytes = compressor(message.data.asSlice())
+                        Frame.compressedMessage(Bytes.from(compBytes), OpCode.Data(OpData.Binary), true)
+                    } else {
+                        Frame.message(message.data, OpCode.Data(OpData.Binary), true)
+                    }
+                }
                 is Message.Ping -> Frame.ping(message.data.asSlice())
                 is Message.Pong -> {
                     setAdditional(Frame.pong(message.data.asSlice()))
@@ -230,10 +260,7 @@ public class WebSocketContext(
                 is Message.FrameMsg -> message.frame
             }
 
-        val shouldFlush = bufferFrame(writeFn, frameToSend)
-        if (shouldFlush) {
-            frame.writeOutBuffer(writeFn)
-        }
+        bufferFrame(writeFn, frameToSend)
     }
 
     public fun flush(writeFn: (ByteArray, Int, Int) -> Int, flushFn: () -> Unit) {
@@ -272,13 +299,18 @@ public class WebSocketContext(
                 unmask = (role == Role.Server),
                 acceptUnmasked = config.acceptUnmaskedFrames,
             ) ?: return null
+        return processFrame(f)
+    }
+
+    private fun processFrame(f: Frame): Message? {
 
         if (!state.canRead()) {
             throw TungsteniteException.ProtocolViolation(ProtocolError.ReceivedAfterClosing)
         }
 
+        val decompressor = extensions.perMessageDecompressor()
         val hdr = f.header
-        if (hdr.rsv1 || hdr.rsv2 || hdr.rsv3) {
+        if ((hdr.rsv1 && decompressor == null) || hdr.rsv2 || hdr.rsv3) {
             throw TungsteniteException.ProtocolViolation(ProtocolError.NonZeroReservedBits)
         }
 
@@ -288,6 +320,9 @@ public class WebSocketContext(
 
         return when (val op = hdr.opcode) {
             is OpCode.Control -> {
+                if (hdr.rsv1) {
+                    throw TungsteniteException.ProtocolViolation(ProtocolError.CompressedControlFrame)
+                }
                 when (val ctl = op.code) {
                     is OpCtl.Close -> {
                         val closeOpt = doClose(f.intoClose())
@@ -306,12 +341,22 @@ public class WebSocketContext(
             }
             is OpCode.Data -> {
                 val fin = hdr.isFinal
-                val payload = f.intoPayload().asSlice()
+                var payload = f.intoPayload().asSlice()
                 when (val data = op.code) {
                     is OpData.Continue -> {
+                        if (hdr.rsv1) {
+                            throw TungsteniteException.ProtocolViolation(ProtocolError.CompressedContinueFrame)
+                        }
                         val inc =
                             incomplete
                                 ?: throw TungsteniteException.ProtocolViolation(ProtocolError.UnexpectedContinueFrame)
+                        if (inc.compressed()) {
+                            if (decompressor == null) {
+                                throw TungsteniteException.ProtocolViolation(ProtocolError.CompressedContinueFrame)
+                            }
+                            val remainingLimit = config.maxMessageSize?.let { (it - inc.len()).toInt().coerceAtLeast(0) } ?: Int.MAX_VALUE
+                            payload = decompressor(payload, fin, remainingLimit)
+                        }
                         inc.extend(payload, config.maxMessageSize)
                         if (fin) {
                             incomplete = null
@@ -324,11 +369,15 @@ public class WebSocketContext(
                         if (incomplete != null) {
                             throw TungsteniteException.ProtocolViolation(ProtocolError.ExpectedFragment(OpData.Text))
                         }
+                        if (hdr.rsv1 && decompressor != null) {
+                            val remainingLimit = config.maxMessageSize?.toInt() ?: Int.MAX_VALUE
+                            payload = decompressor(payload, fin, remainingLimit)
+                        }
                         if (fin) {
                             checkMaxSize(payload.size.toLong(), config.maxMessageSize)
                             Message.text(payload.decodeToString())
                         } else {
-                            val inc = IncompleteMessage.new(MessageType.Text)
+                            val inc = if (hdr.rsv1) IncompleteMessage.newCompressed(MessageType.Text) else IncompleteMessage.new(MessageType.Text)
                             inc.extend(payload, config.maxMessageSize)
                             incomplete = inc
                             null
@@ -338,11 +387,15 @@ public class WebSocketContext(
                         if (incomplete != null) {
                             throw TungsteniteException.ProtocolViolation(ProtocolError.ExpectedFragment(OpData.Binary))
                         }
+                        if (hdr.rsv1 && decompressor != null) {
+                            val remainingLimit = config.maxMessageSize?.toInt() ?: Int.MAX_VALUE
+                            payload = decompressor(payload, fin, remainingLimit)
+                        }
                         if (fin) {
                             checkMaxSize(payload.size.toLong(), config.maxMessageSize)
                             Message.binary(payload)
                         } else {
-                            val inc = IncompleteMessage.new(MessageType.Binary)
+                            val inc = if (hdr.rsv1) IncompleteMessage.newCompressed(MessageType.Binary) else IncompleteMessage.new(MessageType.Binary)
                             inc.extend(payload, config.maxMessageSize)
                             incomplete = inc
                             null
@@ -370,13 +423,12 @@ public class WebSocketContext(
             WebSocketState.Terminated -> null
         }
 
-    private fun bufferFrame(writeFn: (ByteArray, Int, Int) -> Int, frameToSend: Frame): Boolean {
+    private fun bufferFrame(writeFn: (ByteArray, Int, Int) -> Int, frameToSend: Frame) {
         var frame = frameToSend
         if (role == Role.Client) {
             frame.setRandomMask()
         }
         this.frame.bufferFrame(writeFn, frame)
-        return true
     }
 
     private fun setAdditional(add: Frame) {
