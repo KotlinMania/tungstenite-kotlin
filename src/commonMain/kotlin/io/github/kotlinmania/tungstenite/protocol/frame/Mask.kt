@@ -1,4 +1,4 @@
-// port-lint: source protocol/frame/mask.rs
+// port-lint: source tungstenite/src/protocol/frame/mask.rs
 package io.github.kotlinmania.tungstenite.protocol.frame
 
 import kotlin.experimental.xor

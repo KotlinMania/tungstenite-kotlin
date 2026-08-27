@@ -1,4 +1,4 @@
-// port-lint: source extensions/compression/mod.rs
+// port-lint: source tungstenite/src/extensions/compression/mod.rs
 package io.github.kotlinmania.tungstenite.extensions.compression
 
 import io.github.kotlinmania.tungstenite.extensions.compression.deflate.DeflateContext
