@@ -26,9 +26,7 @@ class WebSocketTest {
             return toRead
         }
 
-        fun write(target: ByteArray): Int {
-            return target.size
-        }
+        fun write(target: ByteArray): Int = target.size
 
         fun flush() {}
     }
@@ -202,14 +200,27 @@ class WebSocketTest {
         // RFC 7692 Section 7.2.3.2
         val incoming =
             byteArrayOf(
-                0x41, 0x03, 0xf2.toByte(), 0x48, 0xcd.toByte(), 0x80.toByte(),
-                0x04, 0xc9.toByte(), 0xc9.toByte(), 0x07, 0x00,
+                0x41,
+                0x03,
+                0xf2.toByte(),
+                0x48,
+                0xcd.toByte(),
+                0x80.toByte(),
+                0x04,
+                0xc9.toByte(),
+                0xc9.toByte(),
+                0x07,
+                0x00,
             )
-        val config = WebSocketConfig(
-            extensions = io.github.kotlinmania.tungstenite.extensions.ExtensionsConfig(
-                permessageDeflate = io.github.kotlinmania.tungstenite.extensions.compression.deflate.DeflateConfig.default(),
-            ),
-        )
+        val config =
+            WebSocketConfig(
+                extensions =
+                    io.github.kotlinmania.tungstenite.extensions.ExtensionsConfig(
+                        permessageDeflate =
+                            io.github.kotlinmania.tungstenite.extensions.compression.deflate.DeflateConfig
+                                .default(),
+                    ),
+            )
         val moc = WriteMoc(incoming)
         val socket = WebSocket.fromRawSocket(moc, Role.Client, config)
         assertEquals(Message.text("Hello"), socket.read(moc::read))
@@ -217,11 +228,15 @@ class WebSocketTest {
 
     @Test
     fun perMessageDeflateCompression() {
-        val config = WebSocketConfig(
-            extensions = io.github.kotlinmania.tungstenite.extensions.ExtensionsConfig(
-                permessageDeflate = io.github.kotlinmania.tungstenite.extensions.compression.deflate.DeflateConfig.default(),
-            ),
-        )
+        val config =
+            WebSocketConfig(
+                extensions =
+                    io.github.kotlinmania.tungstenite.extensions.ExtensionsConfig(
+                        permessageDeflate =
+                            io.github.kotlinmania.tungstenite.extensions.compression.deflate.DeflateConfig
+                                .default(),
+                    ),
+            )
         val output = mutableListOf<Byte>()
         val moc = WriteMoc(byteArrayOf())
         val socket = WebSocket.fromRawSocket(moc, Role.Client, config)
@@ -236,18 +251,20 @@ class WebSocketTest {
         assertTrue(output.isNotEmpty())
     }
 
-    private fun makeMessage(frameCount: Int): ByteArray {
-        return ByteArray(frameCount)
-    }
+    private fun makeMessage(frameCount: Int): ByteArray = ByteArray(frameCount)
 
     @Test
     fun perMessageCompressionDecompressRespectsMessageSizeLimit() {
-        val baseConfig = WebSocketConfig(
-            maxMessageSize = 50L,
-            extensions = io.github.kotlinmania.tungstenite.extensions.ExtensionsConfig(
-                permessageDeflate = io.github.kotlinmania.tungstenite.extensions.compression.deflate.DeflateConfig.default(),
-            ),
-        )
+        val baseConfig =
+            WebSocketConfig(
+                maxMessageSize = 50L,
+                extensions =
+                    io.github.kotlinmania.tungstenite.extensions.ExtensionsConfig(
+                        permessageDeflate =
+                            io.github.kotlinmania.tungstenite.extensions.compression.deflate.DeflateConfig
+                                .default(),
+                    ),
+            )
         val data = makeMessage(10)
         val moc = WriteMoc(data)
         val socket = WebSocket.fromRawSocket(moc, Role.Client, baseConfig)

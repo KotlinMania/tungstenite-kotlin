@@ -303,7 +303,6 @@ public class WebSocketContext(
     }
 
     private fun processFrame(f: Frame): Message? {
-
         if (!state.canRead()) {
             throw TungsteniteException.ProtocolViolation(ProtocolError.ReceivedAfterClosing)
         }

@@ -93,17 +93,35 @@ class ProxyTest {
 
     @Test
     fun socks5HandshakeNoAuth() {
-        val response = byteArrayOf(
-            0x05, 0x00, // method select
-            0x05, 0x00, 0x00, 0x01, 0, 0, 0, 0, 0, 0, // connect reply
-        )
+        val response =
+            byteArrayOf(
+                0x05,
+                0x00, // method select
+                0x05,
+                0x00,
+                0x00,
+                0x01,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0, // connect reply
+            )
         val stream = MockStream(response)
         socks5Handshake(stream::read, stream::write, "example.com", 443, null)
 
-        val expected = mutableListOf<Byte>(
-            0x05, 0x01, 0x00, // greeting
-            0x05, 0x01, 0x00, 0x03, 11, // connect header + domain length
-        )
+        val expected =
+            mutableListOf<Byte>(
+                0x05,
+                0x01,
+                0x00, // greeting
+                0x05,
+                0x01,
+                0x00,
+                0x03,
+                11, // connect header + domain length
+            )
         for (b in "example.com".encodeToByteArray()) {
             expected.add(b)
         }
@@ -114,19 +132,36 @@ class ProxyTest {
 
     @Test
     fun socks5HandshakeWithAuth() {
-        val response = byteArrayOf(
-            0x05, 0x02, // method select (user/pass)
-            0x01, 0x00, // auth success
-            0x05, 0x00, 0x00, 0x01, 0, 0, 0, 0, 0, 0, // connect reply
-        )
+        val response =
+            byteArrayOf(
+                0x05,
+                0x02, // method select (user/pass)
+                0x01,
+                0x00, // auth success
+                0x05,
+                0x00,
+                0x00,
+                0x01,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0, // connect reply
+            )
         val auth = ProxyAuth("user", "pass")
         val stream = MockStream(response)
         socks5Handshake(stream::read, stream::write, "example.com", 443, auth)
 
-        val expected = mutableListOf<Byte>(
-            0x05, 0x02, 0x00, 0x02, // greeting with auth methods
-            0x01, 4, // userpass auth subnegotiation + username len
-        )
+        val expected =
+            mutableListOf<Byte>(
+                0x05,
+                0x02,
+                0x00,
+                0x02, // greeting with auth methods
+                0x01,
+                4, // userpass auth subnegotiation + username len
+            )
         for (b in "user".encodeToByteArray()) {
             expected.add(b)
         }

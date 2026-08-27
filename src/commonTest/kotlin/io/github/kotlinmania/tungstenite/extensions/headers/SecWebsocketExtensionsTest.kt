@@ -129,9 +129,7 @@ class SecWebsocketExtensionsTest {
         }
     }
 
-    private fun testEncode(header: SecWebsocketExtensions): Map<String, String> {
-        return mapOf("Sec-WebSocket-Extensions" to header.headerValue())
-    }
+    private fun testEncode(header: SecWebsocketExtensions): Map<String, String> = mapOf("Sec-WebSocket-Extensions" to header.headerValue())
 
     @Test
     fun testDecode() {
