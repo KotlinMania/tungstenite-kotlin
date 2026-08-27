@@ -1,8 +1,14 @@
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 // port-lint: source error.rs
 package io.github.kotlinmania.tungstenite
 
 import io.github.kotlinmania.tungstenite.protocol.Message
 import io.github.kotlinmania.tungstenite.protocol.frame.Data
+import kotlin.native.HiddenFromObjC
+
+/** Result type of all Tungstenite library calls. */
+public typealias Result<T> = kotlin.Result<T>
 
 /** Result type of Tungstenite library calls. */
 public typealias TungsteniteResult<T> = Result<T>
@@ -48,6 +54,12 @@ public sealed class TungsteniteException(
         public val error: ProtocolError,
     ) : TungsteniteException("WebSocket protocol error: $error")
 
+    /** Protocol violation (Rust Error::Protocol equivalent). */
+    @HiddenFromObjC
+    public class Protocol(
+        public val error: ProtocolError,
+    ) : TungsteniteException("WebSocket protocol error: $error")
+
     /** Message write buffer is full. */
     public class WriteBufferFull(
         public val frameMessage: Message,
@@ -76,6 +88,21 @@ public sealed class TungsteniteException(
     public class HttpFormat(
         message: String,
     ) : TungsteniteException("HTTP format error: $message")
+
+    public companion object {
+        public fun from(err: String): TungsteniteException = TungsteniteException.Utf8(err)
+
+        public fun from(err: Throwable): TungsteniteException =
+            if (err is TungsteniteException) err else TungsteniteException.Io(err.message ?: err.toString(), err)
+
+        public fun from(err: CapacityError): TungsteniteException = TungsteniteException.Capacity(err)
+
+        public fun from(err: ProtocolError): TungsteniteException = TungsteniteException.Protocol(err)
+
+        public fun from(err: UrlError): TungsteniteException = TungsteniteException.Url(err)
+
+        public fun from(err: TlsError): TungsteniteException = TungsteniteException.Tls(err)
+    }
 }
 
 /** Indicates the specific type/cause of a capacity error. */

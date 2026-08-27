@@ -77,6 +77,8 @@ public data class WebsocketExtensionParam(
             val value = if (parts.size > 1) parts[1].trim() else null
             return WebsocketExtensionParam(name, value)
         }
+
+        public fun fromStr(s: String): WebsocketExtensionParam = parse(s)
     }
 }
 
@@ -123,6 +125,8 @@ public data class WebsocketProtocolExtension(
             val params = parts.drop(1).map { WebsocketExtensionParam.parse(it) }
             return WebsocketProtocolExtension(name, params)
         }
+
+        public fun fromStr(s: String): WebsocketProtocolExtension = parse(s)
     }
 }
 
@@ -156,7 +160,7 @@ public data class SecWebsocketExtensions(
 
     public companion object {
         /** Constructs a new header from extensions. */
-        public fun new(extensions: List<WebsocketProtocolExtension>): SecWebsocketExtensions =
+        public fun new(extensions: List<WebsocketProtocolExtension> = emptyList()): SecWebsocketExtensions =
             SecWebsocketExtensions(extensions)
 
         /** Decodes from a list of header values. */
@@ -172,6 +176,8 @@ public data class SecWebsocketExtensions(
             val extList = fromCommaDelimited(headerValue).map { WebsocketProtocolExtension.parse(it) }
             return SecWebsocketExtensions(extList)
         }
+
+        public fun fromStr(headerValue: String): SecWebsocketExtensions = parse(headerValue)
 
         private fun fromCommaDelimited(value: String): List<String> {
             val result = ArrayList<String>()

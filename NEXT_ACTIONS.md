@@ -5,10 +5,10 @@ Based on AST analysis, here are the concrete next steps.
 ## Summary
 
 - **Files Present:** 27/27 (100.0%)
-- **Function parity:** 281/357 matched (target 520) — 78.7%
-- **Class/type parity:** 76/102 matched (target 240) — 74.5%
-- **Combined symbol parity:** 357/459 matched (target 760) — 77.8%
-- **Average inline-code cosine:** 0.41 (function body across 20 matched files)
+- **Function parity:** 287/357 matched (target 542) — 80.4%
+- **Class/type parity:** 77/102 matched (target 242) — 75.5%
+- **Combined symbol parity:** 364/459 matched (target 784) — 79.3%
+- **Average inline-code cosine:** 0.42 (function body across 20 matched files)
 - **Average documentation cosine:** 0.67 (doc text across 20 matched files)
 - **Cheat-zeroed Files:** 9
 - **Critical Issues:** 24 files with <0.60 function similarity
@@ -32,50 +32,38 @@ Every matched file is listed below with function and type symbol parity.
 - **Target:** `tungstenite.Error [ZERO]`
 - **Similarity:** 0.00
 - **Dependents:** 6
-- **Priority Score:** 6021110.0
-- **Functions:** 3/4 matched (target 54)
-- **Missing functions:** `from`
-- **Types:** 6/7 matched (target 69)
-- **Missing types:** `Result`
+- **Priority Score:** 6001110.0
+- **Functions:** 4/4 matched (target 60)
+- **Missing functions:** _none_
+- **Types:** 7/7 matched (target 71)
+- **Missing types:** _none_
 - **Tests:** 3/3 matched
 
-### 2. proxy
-
-- **Target:** `tungstenite.Proxy`
-- **Similarity:** 0.46
-- **Dependents:** 1
-- **Priority Score:** 1114305.4
-- **Functions:** 28/39 matched (target 32)
-- **Missing functions:** `from_env`, `connect_proxy_stream`, `proxy_from_env_for_host`, `get_env_first`, `connect_http_proxy`, `connect_socks5_proxy`, `connect_to_proxy`, `new`, `read`, `write`, `flush`
-- **Types:** 4/4 matched (target 5)
-- **Missing types:** _none_
-- **Tests:** 9/13 matched
-
-### 3. headers.sec_websocket_extensions
+### 2. headers.sec_websocket_extensions
 
 - **Target:** `headers.SecWebsocketExtensions`
-- **Similarity:** 0.29
+- **Similarity:** 0.30
 - **Dependents:** 1
-- **Priority Score:** 1113007.1
-- **Functions:** 14/21 matched (target 35)
-- **Missing functions:** `name`, `params`, `value`, `from`, `from_iter`, `from_str`, `fmt`
+- **Priority Score:** 1103007.0
+- **Functions:** 15/21 matched (target 38)
+- **Missing functions:** `name`, `params`, `value`, `from`, `from_iter`, `fmt`
 - **Types:** 5/9 matched (target 6)
 - **Missing types:** `Item`, `IntoIter`, `Err`, `WriteToDyn`
 - **Tests:** 5/5 matched
 
-### 4. deflate.config
+### 3. proxy
 
-- **Target:** `deflate.Config [ZERO]`
-- **Similarity:** 0.00
-- **Dependents:** 0
-- **Priority Score:** 103610.0
-- **Functions:** 21/29 matched (target 33)
-- **Missing functions:** `apply`, `from`, `from_str`, `ordinal`, `name`, `make_config`, `parse_extensions`, `parse_deflates`
-- **Types:** 5/7 matched (target 14)
-- **Missing types:** `ParamName`, `Err`
-- **Tests:** 10/13 matched
+- **Target:** `tungstenite.Proxy`
+- **Similarity:** 0.51
+- **Dependents:** 1
+- **Priority Score:** 1084304.9
+- **Functions:** 31/39 matched (target 42)
+- **Missing functions:** `connect_proxy_stream`, `connect_http_proxy`, `connect_socks5_proxy`, `connect_to_proxy`, `new`, `read`, `write`, `flush`
+- **Types:** 4/4 matched (target 5)
+- **Missing types:** _none_
+- **Tests:** 9/13 matched
 
-### 5. protocol.mod
+### 4. protocol.mod
 
 - **Target:** `protocol.Mod [STUB]`
 - **Similarity:** 0.00
@@ -86,6 +74,18 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 6/7 matched
 - **Missing types:** `CheckConnectionReset`
 - **Tests:** 7/8 matched
+
+### 5. deflate.config
+
+- **Target:** `deflate.Config [ZERO]`
+- **Similarity:** 0.00
+- **Dependents:** 0
+- **Priority Score:** 93610.0
+- **Functions:** 22/29 matched (target 36)
+- **Missing functions:** `apply`, `from`, `ordinal`, `name`, `make_config`, `parse_extensions`, `parse_deflates`
+- **Types:** 5/7 matched (target 14)
+- **Missing types:** `ParamName`, `Err`
+- **Tests:** 10/13 matched
 
 ### 6. frame.utf8
 
