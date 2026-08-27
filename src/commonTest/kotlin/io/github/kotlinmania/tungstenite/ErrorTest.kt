@@ -1,4 +1,4 @@
-// port-lint: tests tungstenite/src/error.rs
+// port-lint: tests error.rs
 package io.github.kotlinmania.tungstenite
 
 import kotlin.test.Test

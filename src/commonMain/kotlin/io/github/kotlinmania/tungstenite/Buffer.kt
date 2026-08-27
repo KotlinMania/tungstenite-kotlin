@@ -1,4 +1,4 @@
-// port-lint: source tungstenite/src/buffer.rs
+// port-lint: source buffer.rs
 package io.github.kotlinmania.tungstenite
 
 import io.github.kotlinmania.bytes.buf.Buf

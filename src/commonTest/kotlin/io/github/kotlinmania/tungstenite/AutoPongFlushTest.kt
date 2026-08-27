@@ -1,4 +1,4 @@
-// port-lint: tests tungstenite/tests/auto_pong_flush.rs
+// port-lint: tests tests/auto_pong_flush.rs
 package io.github.kotlinmania.tungstenite
 
 import io.github.kotlinmania.tungstenite.protocol.Message

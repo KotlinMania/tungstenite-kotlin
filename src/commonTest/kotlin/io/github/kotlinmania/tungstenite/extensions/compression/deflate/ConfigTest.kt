@@ -1,4 +1,4 @@
-// port-lint: tests tungstenite/src/extensions/compression/deflate/config.rs
+// port-lint: tests extensions/compression/deflate/config.rs
 package io.github.kotlinmania.tungstenite.extensions.compression.deflate
 
 import io.github.kotlinmania.tungstenite.extensions.headers.WebsocketExtensionParam

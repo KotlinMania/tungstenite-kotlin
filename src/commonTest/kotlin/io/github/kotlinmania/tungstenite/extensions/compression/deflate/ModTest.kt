@@ -1,4 +1,4 @@
-// port-lint: tests tungstenite/src/extensions/compression/deflate/mod.rs
+// port-lint: tests extensions/compression/deflate/mod.rs
 package io.github.kotlinmania.tungstenite.extensions.compression.deflate
 
 import io.github.kotlinmania.tungstenite.extensions.compression.DecompressionError
