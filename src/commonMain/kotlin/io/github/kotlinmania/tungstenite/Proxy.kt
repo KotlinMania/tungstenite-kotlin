@@ -26,7 +26,11 @@ public enum class ProxyScheme {
 public data class ProxyAuth(
     public val username: String,
     public val password: String,
-)
+) {
+    public companion object {
+        public fun new(username: String, password: String): ProxyAuth = ProxyAuth(username, password)
+    }
+}
 
 /**
  * Resolved proxy configuration.
@@ -41,8 +45,34 @@ public data class ProxyConfig(
     public fun authority(): String = "$host:$port"
 
     public companion object {
+        public fun new(
+            scheme: ProxyScheme,
+            host: String,
+            port: Int,
+            auth: ProxyAuth? = null,
+        ): ProxyConfig = ProxyConfig(scheme, host, port, auth)
+
         /** Parse a proxy configuration from a proxy URL string. */
         public fun parse(value: String): ProxyConfig = parseProxyConfig(value)
+
+        /** Resolve proxy configuration from environment for host, port, and TLS mode. */
+        public fun fromEnv(host: String, port: Int, isTls: Boolean = false): ProxyConfig? =
+            proxyFromEnvForHost(host, port, isTls)
+
+        /** Resolve proxy configuration from environment for a given URI string. */
+        public fun fromEnv(uri: String): ProxyConfig? {
+            val isTls = uri.startsWith("wss://", ignoreCase = true) || uri.startsWith("https://", ignoreCase = true)
+            val schemeEnd = uri.indexOf("://")
+            val remainder = if (schemeEnd != -1) uri.substring(schemeEnd + 3) else uri
+            val pathStart = remainder.indexOfAny(charArrayOf('/', '?', '#'))
+            val hostPortStr = if (pathStart != -1) remainder.substring(0, pathStart) else remainder
+            val atIdx = hostPortStr.lastIndexOf('@')
+            val actualHostPort = if (atIdx != -1) hostPortStr.substring(atIdx + 1) else hostPortStr
+            val (host, portOpt) = splitHostPort(actualHostPort)
+            if (host.isEmpty()) return null
+            val port = portOpt ?: if (isTls) 443 else 80
+            return proxyFromEnvForHost(host, port, isTls)
+        }
     }
 }
 
@@ -138,6 +168,56 @@ public fun normalizeHost(host: String): String =
     } else {
         host
     }
+
+private val PROXY_ENV: MutableMap<String, String> = mutableMapOf()
+
+public fun setProxyEnvVar(name: String, value: String) {
+    PROXY_ENV[name] = value
+}
+
+public fun removeProxyEnvVar(name: String) {
+    PROXY_ENV.remove(name)
+}
+
+public fun getEnvFirst(keys: List<String>): String? {
+    for (k in keys) {
+        val v = PROXY_ENV[k]
+        if (!v.isNullOrEmpty()) {
+            return v
+        }
+    }
+    return null
+}
+
+public fun getEnvFirst(vararg keys: String): String? = getEnvFirst(keys.toList())
+
+public fun proxyFromEnvForHost(
+    host: String,
+    port: Int,
+    isTls: Boolean = false,
+): ProxyConfig? {
+    if (shouldBypassProxy(host, port)) {
+        return null
+    }
+
+    val proxy =
+        if (isTls) {
+            getEnvFirst("HTTPS_PROXY", "https_proxy")
+                ?: getEnvFirst("HTTP_PROXY", "http_proxy")
+        } else {
+            getEnvFirst("HTTP_PROXY", "http_proxy")
+        } ?: getEnvFirst("ALL_PROXY", "all_proxy") ?: return null
+
+    return parseProxyConfig(proxy)
+}
+
+/**
+ * Check if the host and port should bypass proxy using configured environment variables.
+ */
+public fun shouldBypassProxy(host: String, port: Int): Boolean {
+    val noProxy = getEnvFirst("NO_PROXY", "no_proxy") ?: return false
+    return shouldBypassProxy(host, port, noProxy)
+}
 
 /**
  * Check if the host and port should bypass proxy given a NO_PROXY environment string.

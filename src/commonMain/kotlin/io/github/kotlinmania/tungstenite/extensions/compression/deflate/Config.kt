@@ -136,7 +136,14 @@ public data class PermessageDeflateConfig(
     public fun asOffer(): WebsocketProtocolExtension = intoExtension()
 
     public companion object {
+        public fun new(): PermessageDeflateConfig = PermessageDeflateConfig()
+
         public fun default(): PermessageDeflateConfig = PermessageDeflateConfig()
+
+        public fun isValidWindowBits(bits: Int): Boolean = bits in ALLOWED_WINDOW_BITS
+
+        public fun fromStr(s: String): PermessageDeflateConfig =
+            parseParams(WebsocketProtocolExtension.parse(s).params)
 
         public fun parseParams(params: List<WebsocketExtensionParam>): PermessageDeflateConfig {
             val config = PermessageDeflateConfig()
