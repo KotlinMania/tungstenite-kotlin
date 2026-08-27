@@ -1,4 +1,4 @@
-// port-lint: tests tungstenite/tests/url_feature.rs
+// port-lint: tests tests/url_feature.rs
 package io.github.kotlinmania.tungstenite
 
 import kotlin.test.Test

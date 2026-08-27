@@ -1,4 +1,4 @@
-// port-lint: source tungstenite/src/extensions/headers/sec_websocket_extensions.rs
+// port-lint: source extensions/headers/sec_websocket_extensions.rs
 package io.github.kotlinmania.tungstenite.extensions.headers
 
 /**

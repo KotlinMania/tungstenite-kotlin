@@ -1,4 +1,4 @@
-// port-lint: source tungstenite/src/proxy.rs
+// port-lint: source proxy.rs
 package io.github.kotlinmania.tungstenite
 
 import kotlin.io.encoding.Base64

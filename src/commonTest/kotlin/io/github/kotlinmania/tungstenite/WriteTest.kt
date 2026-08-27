@@ -1,4 +1,4 @@
-// port-lint: tests tungstenite/tests/write.rs
+// port-lint: tests tests/write.rs
 package io.github.kotlinmania.tungstenite
 
 import io.github.kotlinmania.tungstenite.protocol.Message

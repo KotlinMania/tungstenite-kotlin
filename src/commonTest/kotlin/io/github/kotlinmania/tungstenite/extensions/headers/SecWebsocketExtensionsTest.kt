@@ -1,4 +1,4 @@
-// port-lint: tests tungstenite/src/extensions/headers/sec_websocket_extensions.rs
+// port-lint: tests extensions/headers/sec_websocket_extensions.rs
 package io.github.kotlinmania.tungstenite.extensions.headers
 
 import kotlin.test.Test
