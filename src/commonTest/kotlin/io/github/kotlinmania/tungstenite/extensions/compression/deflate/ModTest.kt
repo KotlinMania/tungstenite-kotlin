@@ -14,12 +14,13 @@ class ModTest {
     @Test
     fun interop() {
         val data = ByteArray(2048) { (it % 251).toByte() }
-        val configs = listOf(
-            DeflateConfig.default(),
-            DeflateConfig.default().setNoContextTakeover(Role.Client, true),
-            DeflateConfig.default().setNoContextTakeover(Role.Client, true).setMaxWindowBits(Role.Client, 10),
-            DeflateConfig.default().setMaxWindowBits(Role.Client, 10),
-        )
+        val configs =
+            listOf(
+                DeflateConfig.default(),
+                DeflateConfig.default().setNoContextTakeover(Role.Client, true),
+                DeflateConfig.default().setNoContextTakeover(Role.Client, true).setMaxWindowBits(Role.Client, 10),
+                DeflateConfig.default().setMaxWindowBits(Role.Client, 10),
+            )
         val frameSizes = listOf(16, 64, data.size)
 
         for (config in configs) {
@@ -54,13 +55,76 @@ class ModTest {
 
     @Test
     fun decompressionLimitsApplied() {
-        val framePayload = byteArrayOf(
-            0xec.toByte(), 0xc1.toByte(), 0x31.toByte(), 0x01.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte(), 0xc2.toByte(), 0xa0.toByte(), 0xf5.toByte(), 0x4f.toByte(), 0x6d.toByte(), 0x0b.toByte(), 0x2f.toByte(),
-            0xa0.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte(),
-            0x00.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte(),
-            0x00.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte(),
-            0x00.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte(), 0xe0.toByte(), 0x6f.toByte(), 0x00.toByte(),
-        )
+        val framePayload =
+            byteArrayOf(
+                0xec.toByte(),
+                0xc1.toByte(),
+                0x31.toByte(),
+                0x01.toByte(),
+                0x00.toByte(),
+                0x00.toByte(),
+                0x00.toByte(),
+                0xc2.toByte(),
+                0xa0.toByte(),
+                0xf5.toByte(),
+                0x4f.toByte(),
+                0x6d.toByte(),
+                0x0b.toByte(),
+                0x2f.toByte(),
+                0xa0.toByte(),
+                0x00.toByte(),
+                0x00.toByte(),
+                0x00.toByte(),
+                0x00.toByte(),
+                0x00.toByte(),
+                0x00.toByte(),
+                0x00.toByte(),
+                0x00.toByte(),
+                0x00.toByte(),
+                0x00.toByte(),
+                0x00.toByte(),
+                0x00.toByte(),
+                0x00.toByte(),
+                0x00.toByte(),
+                0x00.toByte(),
+                0x00.toByte(),
+                0x00.toByte(),
+                0x00.toByte(),
+                0x00.toByte(),
+                0x00.toByte(),
+                0x00.toByte(),
+                0x00.toByte(),
+                0x00.toByte(),
+                0x00.toByte(),
+                0x00.toByte(),
+                0x00.toByte(),
+                0x00.toByte(),
+                0x00.toByte(),
+                0x00.toByte(),
+                0x00.toByte(),
+                0x00.toByte(),
+                0x00.toByte(),
+                0x00.toByte(),
+                0x00.toByte(),
+                0x00.toByte(),
+                0x00.toByte(),
+                0x00.toByte(),
+                0x00.toByte(),
+                0x00.toByte(),
+                0x00.toByte(),
+                0x00.toByte(),
+                0x00.toByte(),
+                0x00.toByte(),
+                0x00.toByte(),
+                0x00.toByte(),
+                0x00.toByte(),
+                0x00.toByte(),
+                0x00.toByte(),
+                0x00.toByte(),
+                0xe0.toByte(),
+                0x6f.toByte(),
+                0x00.toByte(),
+            )
         val context = DeflateContext(Role.Client, DeflateConfig.default())
         assertFailsWith<DecompressionError.SizeLimitReached> {
             context.decompress(framePayload, true, 1000)
@@ -82,10 +146,25 @@ class ModTest {
     }
 
     fun makeFrames(frameCount: Int): List<Pair<ByteArray, Boolean>> {
-        val framePayload = byteArrayOf(
-            0xec.toByte(), 0xc1.toByte(), 0x31, 0x01, 0x00, 0x00, 0x00, 0xc2.toByte(),
-            0xa0.toByte(), 0xf5.toByte(), 0x4f, 0x6d, 0x0b, 0x2f, 0xa0.toByte(), 0x00,
-        )
+        val framePayload =
+            byteArrayOf(
+                0xec.toByte(),
+                0xc1.toByte(),
+                0x31,
+                0x01,
+                0x00,
+                0x00,
+                0x00,
+                0xc2.toByte(),
+                0xa0.toByte(),
+                0xf5.toByte(),
+                0x4f,
+                0x6d,
+                0x0b,
+                0x2f,
+                0xa0.toByte(),
+                0x00,
+            )
         return (0 until frameCount).map { i ->
             val isFinal = i == frameCount - 1
             Pair(framePayload, isFinal)

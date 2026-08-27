@@ -116,10 +116,11 @@ class ConfigTest {
         val clientConfig = DeflateConfig.new()
         assertEquals(15, clientConfig.clientMaxWindowBits)
 
-        val serverResponse = PermessageDeflateConfig(
-            serverMaxWindowBits = 15,
-            clientMaxWindowBits = 12,
-        )
+        val serverResponse =
+            PermessageDeflateConfig(
+                serverMaxWindowBits = 15,
+                clientMaxWindowBits = 12,
+            )
         val accepted = clientConfig.acceptResponse(serverResponse)
         assertNotNull(accepted)
         assertEquals(12, accepted.clientMaxWindowBits)
@@ -134,16 +135,16 @@ class ConfigTest {
         val lines = raw.lines()
         val headerLine = lines.firstOrNull { it.startsWith("Sec-WebSocket-Extensions:", ignoreCase = true) }
         val value = headerLine?.substringAfter(":")?.trim() ?: ""
-        return io.github.kotlinmania.tungstenite.extensions.headers.SecWebsocketExtensions.parse(value)
+        return io.github.kotlinmania.tungstenite.extensions.headers.SecWebsocketExtensions
+            .parse(value)
     }
 
     private fun parseDeflates(
         extensions: io.github.kotlinmania.tungstenite.extensions.headers.SecWebsocketExtensions,
-    ): List<PermessageDeflateConfig> {
-        return extensions.extensions
+    ): List<PermessageDeflateConfig> =
+        extensions.extensions
             .filter { it.name == PER_MESSAGE_DEFLATE }
             .map { PermessageDeflateConfig.parseParams(it.params) }
-    }
 
     @Test
     fun simplest() {
