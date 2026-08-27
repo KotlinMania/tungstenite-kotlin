@@ -1,4 +1,4 @@
-// port-lint: tests tests/connection_reset.rs
+// port-lint: tests tungstenite/tests/connection_reset.rs
 package io.github.kotlinmania.tungstenite
 
 import io.github.kotlinmania.bytes.Bytes

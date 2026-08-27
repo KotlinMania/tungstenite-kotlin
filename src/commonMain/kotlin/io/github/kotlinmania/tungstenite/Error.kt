@@ -1,4 +1,4 @@
-// port-lint: source error.rs
+// port-lint: source tungstenite/src/error.rs
 package io.github.kotlinmania.tungstenite
 
 import io.github.kotlinmania.tungstenite.protocol.Message

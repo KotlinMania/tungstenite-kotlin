@@ -1,4 +1,4 @@
-// port-lint: tests buffer.rs
+// port-lint: tests tungstenite/src/buffer.rs
 package io.github.kotlinmania.tungstenite
 
 import kotlin.test.Test
