@@ -8,19 +8,19 @@ import kotlin.test.assertTrue
 class ErrorTest {
     @Test
     fun errorSize() {
-        // Rust memory layout test (std::mem::size_of) does not apply to JVM/KMP managed memory.
+        // Rust memory layout test (sizeOf) does not apply to JVM/KMP managed memory.
         assertTrue(true)
     }
 
     @Test
     fun tlsErrorSize() {
-        // Rust memory layout test (std::mem::size_of) does not apply to JVM/KMP managed memory.
+        // Rust memory layout test (sizeOf) does not apply to JVM/KMP managed memory.
         assertTrue(true)
     }
 
     @Test
     fun protocolErrorSize() {
-        // Rust memory layout test (std::mem::size_of) does not apply to JVM/KMP managed memory.
+        // Rust memory layout test (sizeOf) does not apply to JVM/KMP managed memory.
         assertTrue(true)
     }
 

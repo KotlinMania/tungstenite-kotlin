@@ -8,9 +8,9 @@ Based on AST analysis, here are the concrete next steps.
 - **Function parity:** 287/357 matched (target 542) — 80.4%
 - **Class/type parity:** 77/102 matched (target 242) — 75.5%
 - **Combined symbol parity:** 364/459 matched (target 784) — 79.3%
-- **Average inline-code cosine:** 0.42 (function body across 20 matched files)
+- **Average inline-code cosine:** 0.43 (function body across 20 matched files)
 - **Average documentation cosine:** 0.67 (doc text across 20 matched files)
-- **Cheat-zeroed Files:** 9
+- **Cheat-zeroed Files:** 8
 - **Critical Issues:** 24 files with <0.60 function similarity
 
 ## Priority 1: Fix Incomplete High-Dependency Files
@@ -29,10 +29,10 @@ Every matched file is listed below with function and type symbol parity.
 
 ### 1. error
 
-- **Target:** `tungstenite.Error [ZERO]`
-- **Similarity:** 0.00
+- **Target:** `tungstenite.Error`
+- **Similarity:** 0.34
 - **Dependents:** 6
-- **Priority Score:** 6001110.0
+- **Priority Score:** 6001106.5
 - **Functions:** 4/4 matched (target 60)
 - **Missing functions:** _none_
 - **Types:** 7/7 matched (target 71)
