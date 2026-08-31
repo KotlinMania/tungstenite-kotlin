@@ -1,4 +1,4 @@
-// port-lint: source handshake/server.rs
+// port-lint: source tungstenite/src/handshake/server.rs
 package io.github.kotlinmania.tungstenite.handshake
 
 import io.github.kotlinmania.tungstenite.ProtocolError

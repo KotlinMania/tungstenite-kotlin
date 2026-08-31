@@ -1,4 +1,4 @@
-// port-lint: source stream.rs
+// port-lint: source tungstenite/src/stream.rs
 package io.github.kotlinmania.tungstenite
 
 /** Stream mode, either plain TCP or TLS. */

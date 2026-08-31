@@ -1,4 +1,4 @@
-// port-lint: tests tests/wss_fails_when_no_tls.rs
+// port-lint: tests tungstenite/tests/wss_fails_when_no_tls.rs
 package io.github.kotlinmania.tungstenite
 
 import kotlin.test.Test

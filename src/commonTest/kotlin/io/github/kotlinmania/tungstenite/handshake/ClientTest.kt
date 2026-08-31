@@ -1,4 +1,4 @@
-// port-lint: tests handshake/client.rs
+// port-lint: tests tungstenite/src/handshake/client.rs
 package io.github.kotlinmania.tungstenite.handshake
 
 import io.github.kotlinmania.tungstenite.TungsteniteException

@@ -1,4 +1,4 @@
-// port-lint: tests protocol/frame/coding.rs
+// port-lint: tests tungstenite/src/protocol/frame/coding.rs
 package io.github.kotlinmania.tungstenite.protocol.frame
 
 import kotlin.test.Test

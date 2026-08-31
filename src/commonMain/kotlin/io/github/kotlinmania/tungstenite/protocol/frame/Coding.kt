@@ -1,4 +1,4 @@
-// port-lint: source protocol/frame/coding.rs
+// port-lint: source tungstenite/src/protocol/frame/coding.rs
 
 package io.github.kotlinmania.tungstenite.protocol.frame
 
