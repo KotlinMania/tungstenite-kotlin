@@ -1,4 +1,4 @@
-// port-lint: tests ../tests/client_headers.rs
+// port-lint: tests tungstenite/src/../tests/client_headers.rs
 package io.github.kotlinmania.tungstenite
 
 import kotlin.test.Test
