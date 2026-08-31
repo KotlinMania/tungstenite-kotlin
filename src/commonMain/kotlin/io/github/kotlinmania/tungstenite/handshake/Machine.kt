@@ -1,4 +1,4 @@
-// port-lint: source tungstenite/src/handshake/machine.rs
+// port-lint: source handshake/machine.rs
 package io.github.kotlinmania.tungstenite.handshake
 
 import io.github.kotlinmania.tungstenite.ReadBuffer
