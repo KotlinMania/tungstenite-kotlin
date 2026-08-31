@@ -1,4 +1,4 @@
-// port-lint: tests extensions/mod.rs
+// port-lint: tests tungstenite/src/extensions/mod.rs
 package io.github.kotlinmania.tungstenite.extensions
 
 import io.github.kotlinmania.tungstenite.extensions.compression.deflate.DeflateConfig

@@ -1,4 +1,4 @@
-// port-lint: source handshake/headers.rs
+// port-lint: source tungstenite/src/handshake/headers.rs
 package io.github.kotlinmania.tungstenite.handshake
 
 import io.github.kotlinmania.tungstenite.CapacityError
