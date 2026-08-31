@@ -1,4 +1,4 @@
-// port-lint: source tungstenite/src/tls.rs
+// port-lint: source tls.rs
 package io.github.kotlinmania.tungstenite
 
 import io.github.kotlinmania.tungstenite.handshake.ClientHandshake

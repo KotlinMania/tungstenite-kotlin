@@ -1,4 +1,4 @@
-// port-lint: tests tungstenite/src/protocol/frame/frame.rs
+// port-lint: tests protocol/frame/frame.rs
 package io.github.kotlinmania.tungstenite.protocol.frame
 
 import io.github.kotlinmania.bytes.Bytes

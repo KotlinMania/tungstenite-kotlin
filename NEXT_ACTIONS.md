@@ -4,14 +4,14 @@ Based on AST analysis, here are the concrete next steps.
 
 ## Summary
 
-- **Files Present:** 27/50 (54.0%)
-- **Function parity:** 287/430 matched (target 542) — 66.7%
-- **Class/type parity:** 77/111 matched (target 242) — 69.4%
-- **Combined symbol parity:** 364/541 matched (target 784) — 67.3%
-- **Average inline-code cosine:** 0.40 (function body across 19 matched files)
-- **Average documentation cosine:** 0.71 (doc text across 19 matched files)
-- **Cheat-zeroed Files:** 9
-- **Critical Issues:** 25 files with <0.60 function similarity
+- **Files Present:** 27/27 (100.0%)
+- **Function parity:** 287/357 matched (target 542) — 80.4%
+- **Class/type parity:** 77/102 matched (target 242) — 75.5%
+- **Combined symbol parity:** 364/459 matched (target 784) — 79.3%
+- **Average inline-code cosine:** 0.43 (function body across 20 matched files)
+- **Average documentation cosine:** 0.67 (doc text across 20 matched files)
+- **Cheat-zeroed Files:** 8
+- **Critical Issues:** 24 files with <0.60 function similarity
 
 ## Priority 1: Fix Incomplete High-Dependency Files
 
@@ -27,7 +27,7 @@ No missing high-value files detected.
 
 Every matched file is listed below with function and type symbol parity.
 
-### 1. tungstenite.error
+### 1. error
 
 - **Target:** `tungstenite.Error`
 - **Similarity:** 0.34
@@ -51,7 +51,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Missing types:** `Item`, `IntoIter`, `Err`, `WriteToDyn`
 - **Tests:** 5/5 matched
 
-### 3. tungstenite.proxy
+### 3. proxy
 
 - **Target:** `tungstenite.Proxy`
 - **Similarity:** 0.51
@@ -111,7 +111,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Missing types:** `Request`, `Response`, `ErrorResponse`, `IncomingData`, `InternalStream`, `FinalResult`
 - **Tests:** 2/2 matched
 
-### 8. tungstenite.client
+### 8. client
 
 - **Target:** `tungstenite.Client`
 - **Similarity:** 0.27
@@ -122,7 +122,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 2/2 matched
 - **Missing types:** _none_
 
-### 9. tungstenite.stream
+### 9. stream
 
 - **Target:** `tungstenite.Stream`
 - **Similarity:** 0.00
@@ -204,7 +204,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Missing types:** _none_
 - **Tests:** 10/11 matched
 
-### 16. tungstenite.buffer
+### 16. buffer
 
 - **Target:** `tungstenite.Buffer`
 - **Similarity:** 0.41
@@ -240,7 +240,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Missing types:** `FromHttparse`
 - **Tests:** 3/3 matched
 
-### 19. tungstenite.util
+### 19. util
 
 - **Target:** `tungstenite.Util`
 - **Similarity:** 0.15
@@ -251,7 +251,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 1/3 matched (target 2)
 - **Missing types:** `NonBlockingResult`, `Result`
 
-### 20. tungstenite.tls
+### 20. tls
 
 - **Target:** `tungstenite.Tls`
 - **Similarity:** 0.30
@@ -273,12 +273,12 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 6/6 matched (target 14)
 - **Missing types:** _none_
 
-### 22. tungstenite.lib
+### 22. lib
 
-- **Target:** `tungstenite.Lib [STUB]`
-- **Similarity:** 0.00
+- **Target:** `tungstenite.Lib`
+- **Similarity:** 1.00
 - **Dependents:** 0
-- **Priority Score:** 10110.0
+- **Priority Score:** 10100.0
 - **Functions:** 0/0 matched
 - **Missing functions:** _none_
 - **Types:** 0/1 matched (target 4)
@@ -320,7 +320,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Missing types:** _none_
 - **Tests:** 1/1 matched
 
-### 26. tungstenite.server
+### 26. server
 
 - **Target:** `tungstenite.Server`
 - **Similarity:** 0.91

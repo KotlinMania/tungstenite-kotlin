@@ -1,4 +1,4 @@
-// port-lint: tests tungstenite/tests/receive_after_init_close.rs
+// port-lint: tests ../tests/receive_after_init_close.rs
 package io.github.kotlinmania.tungstenite
 
 import io.github.kotlinmania.bytes.Bytes
