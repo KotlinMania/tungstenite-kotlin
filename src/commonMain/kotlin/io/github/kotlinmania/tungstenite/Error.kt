@@ -1,6 +1,6 @@
 @file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 
-// port-lint: source error.rs
+// port-lint: source tungstenite/src/error.rs
 
 package io.github.kotlinmania.tungstenite
 

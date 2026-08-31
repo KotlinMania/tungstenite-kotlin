@@ -1,4 +1,4 @@
-// port-lint: source handshake/mod.rs
+// port-lint: source tungstenite/src/handshake/mod.rs
 package io.github.kotlinmania.tungstenite.handshake
 
 import kotlin.io.encoding.Base64

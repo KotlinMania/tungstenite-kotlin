@@ -1,4 +1,4 @@
-// port-lint: tests proxy.rs
+// port-lint: tests tungstenite/src/proxy.rs
 package io.github.kotlinmania.tungstenite
 
 import kotlin.test.Test

@@ -1,4 +1,4 @@
-// port-lint: tests ../tests/no_send_after_close.rs
+// port-lint: tests tungstenite/src/../tests/no_send_after_close.rs
 package io.github.kotlinmania.tungstenite
 
 import io.github.kotlinmania.tungstenite.protocol.Message
