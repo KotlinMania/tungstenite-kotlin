@@ -1,6 +1,6 @@
 # port-lint Proposed Changes
 
-**Generated:** 2026-09-01
+**Generated:** 2026-09-02
 **Source:** tmp/tungstenite/src
 **Target:** src/commonMain/kotlin
 
