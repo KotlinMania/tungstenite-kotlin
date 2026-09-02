@@ -2,7 +2,7 @@
   "type": "port",
   "name": "tungstenite-kotlin",
   "source": {
-    "path": "tmp",
+    "path": "tmp/tungstenite/src",
     "lang": "rust"
   },
   "target": {

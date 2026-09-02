@@ -1,4 +1,4 @@
-// port-lint: source tungstenite/src/handshake/machine.rs
+// port-lint: source handshake/machine.rs
 package io.github.kotlinmania.tungstenite.handshake
 
 import io.github.kotlinmania.tungstenite.ReadBuffer
@@ -141,6 +141,58 @@ public class HandshakeMachine<Stream>(
 
     /** Returns the inner stream mutable reference. */
     public fun getMut(): Stream = stream
+
+    /** Perform a single handshake round. */
+    public fun <Obj> singleRound(
+        parser: TryParse<Obj>,
+        readFn: (ByteArray) -> Int,
+        writeFn: (ByteArray, Int, Int) -> Int,
+        flushFn: () -> Unit,
+    ): RoundResult<Obj, Stream> {
+        when (val currState = state) {
+            is HandshakeState.Reading -> {
+                val count = currState.buffer.readFrom(readFn)
+                if (count == 0) {
+                    throw TungsteniteException.ProtocolViolation(
+                        io.github.kotlinmania.tungstenite.ProtocolError.HandshakeIncomplete,
+                    )
+                }
+                currState.attackCheck.checkIncomingPacketSize(count).getOrThrow()
+                val chunk = currState.buffer.chunk()
+                val parseResult = parser.tryParse(chunk).getOrThrow()
+                return if (parseResult != null) {
+                    val (size, obj) = parseResult
+                    currState.buffer.advance(size)
+                    RoundResult.StageFinished(
+                        StageResult.DoneReading(
+                            result = obj,
+                            stream = stream,
+                            tail = currState.buffer.intoByteArray(),
+                        ),
+                    )
+                } else {
+                    RoundResult.Incomplete(this)
+                }
+            }
+            is HandshakeState.Writing -> {
+                val remaining = currState.data.size - currState.position
+                if (remaining > 0) {
+                    val written = writeFn(currState.data, currState.position, remaining)
+                    currState.position += written
+                }
+                return if (currState.position >= currState.data.size) {
+                    state = HandshakeState.Flushing
+                    RoundResult.Incomplete(this)
+                } else {
+                    RoundResult.Incomplete(this)
+                }
+            }
+            is HandshakeState.Flushing -> {
+                flushFn()
+                return RoundResult.StageFinished(StageResult.DoneWriting(stream))
+            }
+        }
+    }
 
     public companion object {
         /**

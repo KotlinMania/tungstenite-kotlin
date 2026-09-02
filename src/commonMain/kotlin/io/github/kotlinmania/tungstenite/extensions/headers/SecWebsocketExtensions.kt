@@ -1,4 +1,4 @@
-// port-lint: source tungstenite/src/extensions/headers/sec_websocket_extensions.rs
+// port-lint: source extensions/headers/sec_websocket_extensions.rs
 package io.github.kotlinmania.tungstenite.extensions.headers
 
 /**
@@ -130,6 +130,15 @@ public data class WebsocketProtocolExtension(
     }
 }
 
+/** Type alias for dynamic WriteTo. */
+public typealias WriteToDyn = WriteTo
+
+/** Type alias for SecWebsocketExtensions item. */
+public typealias SecWebsocketExtensionsItem = WebsocketProtocolExtension
+
+/** Type alias for SecWebsocketExtensions iterator. */
+public typealias SecWebsocketExtensionsIntoIter = Iterator<WebsocketProtocolExtension>
+
 /**
  * The `Sec-Websocket-Extensions` header.
  */
@@ -156,12 +165,22 @@ public data class SecWebsocketExtensions(
     /** Serialized header value. */
     public fun headerValue(): String = extensions.joinToString(", ") { it.toString() }
 
+    public fun fmt(): String = headerValue()
+
     override fun toString(): String = headerValue()
 
     public companion object {
         /** Constructs a new header from extensions. */
         public fun new(extensions: List<WebsocketProtocolExtension> = emptyList()): SecWebsocketExtensions =
             SecWebsocketExtensions(extensions)
+
+        /** Constructs from a single extension. */
+        public fun from(value: WebsocketProtocolExtension): SecWebsocketExtensions =
+            SecWebsocketExtensions(listOf(value))
+
+        /** Constructs from an iterable of extensions. */
+        public fun fromIter(iter: Iterable<WebsocketProtocolExtension>): SecWebsocketExtensions =
+            SecWebsocketExtensions(iter.toList())
 
         /** Decodes from a list of header values. */
         public fun decode(values: List<String>): SecWebsocketExtensions =

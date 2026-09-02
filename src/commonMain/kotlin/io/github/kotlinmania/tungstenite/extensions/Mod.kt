@@ -1,4 +1,4 @@
-// port-lint: source tungstenite/src/extensions/mod.rs
+// port-lint: source extensions/mod.rs
 package io.github.kotlinmania.tungstenite.extensions
 
 import io.github.kotlinmania.tungstenite.extensions.compression.PerMessageCompressionContext
