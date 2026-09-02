@@ -1,4 +1,4 @@
-// port-lint: source tungstenite/src/extensions/compression/deflate/config.rs
+// port-lint: source extensions/compression/deflate/config.rs
 package io.github.kotlinmania.tungstenite.extensions.compression.deflate
 
 import io.github.kotlinmania.tungstenite.extensions.headers.WebsocketExtensionParam
@@ -374,3 +374,35 @@ public data class DeflateConfig(
         public fun default(): DeflateConfig = new()
     }
 }
+
+/**
+ * Parameter name descriptor for permessage-deflate parameters.
+ */
+public sealed class ParamName {
+    public data class NoContextTakeover(public val role: Role) : ParamName()
+    public data class MaxWindowBits(public val role: Role) : ParamName()
+
+    public fun ordinal(): Int =
+        when (this) {
+            is NoContextTakeover -> if (role == Role.Server) 0 else 1
+            is MaxWindowBits -> if (role == Role.Server) 2 else 3
+        }
+
+    public fun name(): String =
+        when (this) {
+            is NoContextTakeover -> if (role == Role.Server) SERVER_NO_CONTEXT_TAKEOVER else CLIENT_NO_CONTEXT_TAKEOVER
+            is MaxWindowBits -> if (role == Role.Server) SERVER_MAX_WINDOW_BITS else CLIENT_MAX_WINDOW_BITS
+        }
+
+    public companion object {
+        public fun fromStr(s: String): ParamName =
+            when (s) {
+                CLIENT_MAX_WINDOW_BITS -> MaxWindowBits(Role.Client)
+                SERVER_MAX_WINDOW_BITS -> MaxWindowBits(Role.Server)
+                CLIENT_NO_CONTEXT_TAKEOVER -> NoContextTakeover(Role.Client)
+                SERVER_NO_CONTEXT_TAKEOVER -> NoContextTakeover(Role.Server)
+                else -> throw ParameterError.UnknownParameter(s)
+            }
+    }
+}
+

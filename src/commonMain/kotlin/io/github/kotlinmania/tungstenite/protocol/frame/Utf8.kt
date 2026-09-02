@@ -1,4 +1,4 @@
-// port-lint: source tungstenite/src/protocol/frame/utf8.rs
+// port-lint: source protocol/frame/utf8.rs
 package io.github.kotlinmania.tungstenite.protocol.frame
 
 import io.github.kotlinmania.bytes.Bytes
@@ -50,6 +50,18 @@ public class Utf8Bytes internal constructor(
 
     override fun toString(): String = asStr()
 
+    public fun deref(): String = asStr()
+
+    public fun fmt(): String = asStr()
+
+    public fun hash(): Int = hashCode()
+
+    public fun cmp(other: Utf8Bytes): Int = compareTo(other)
+
+    public fun partialCmp(other: Utf8Bytes): Int = compareTo(other)
+
+    public fun eq(other: Any?): Boolean = equals(other)
+
     public companion object {
         public val EMPTY: Utf8Bytes = Utf8Bytes(Bytes.new())
 
@@ -82,3 +94,7 @@ public class Utf8Bytes internal constructor(
             tryFrom(bytes)
     }
 }
+
+/** Type alias for deref target. */
+public typealias Utf8BytesTarget = String
+

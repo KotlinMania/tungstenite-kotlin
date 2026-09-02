@@ -1,4 +1,4 @@
-// port-lint: source tungstenite/src/buffer.rs
+// port-lint: source buffer.rs
 package io.github.kotlinmania.tungstenite
 
 import io.github.kotlinmania.bytes.buf.Buf
@@ -95,6 +95,16 @@ public class ReadBuffer(
         }
         position += cnt
     }
+
+    /**
+     * Get a cursor / slice to the remaining data storage.
+     */
+    public fun asCursor(): ByteArray = chunk()
+
+    /**
+     * Get a mutable view / slice to the data storage.
+     */
+    public fun asCursorMut(): ByteArray = chunk()
 
     override fun toString(): String =
         "ReadBuffer(chunkSize=$chunkSize, remaining=${remaining()}, position=$position)"

@@ -1,4 +1,4 @@
-// port-lint: source tungstenite/src/protocol/mod.rs
+// port-lint: source protocol/mod.rs
 package io.github.kotlinmania.tungstenite.protocol
 
 import io.github.kotlinmania.bytes.Bytes
@@ -129,6 +129,23 @@ public class WebSocket<Stream>(
         context.close(writeFn, flushFn, code)
     }
 
+    /** Old name for [read]. */
+    public fun readMessage(
+        readFn: (ByteArray) -> Int,
+        writeFn: ((ByteArray, Int, Int) -> Int)? = null,
+        flushFn: (() -> Unit)? = null,
+    ): Message? = read(readFn, writeFn, flushFn)
+
+    /** Old name for [send]. */
+    public fun writeMessage(writeFn: (ByteArray, Int, Int) -> Int, flushFn: () -> Unit, message: Message) {
+        send(writeFn, flushFn, message)
+    }
+
+    /** Old name for [flush]. */
+    public fun writePending(writeFn: (ByteArray, Int, Int) -> Int, flushFn: () -> Unit) {
+        flush(writeFn, flushFn)
+    }
+
     public companion object {
         public fun <Stream> fromRawSocket(
             stream: Stream,
@@ -137,6 +154,14 @@ public class WebSocket<Stream>(
         ): WebSocket<Stream> =
             WebSocket(stream, WebSocketContext.new(role, config))
 
+        public fun <Stream> fromRawSocketWithExtensions(
+            stream: Stream,
+            role: Role,
+            config: WebSocketConfig? = null,
+            extensions: Extensions = Extensions(),
+        ): WebSocket<Stream> =
+            WebSocket(stream, WebSocketContext.fromRawSocketWithExtensions(role, config, extensions))
+
         public fun <Stream> fromPartiallyRead(
             stream: Stream,
             part: ByteArray,
@@ -144,6 +169,15 @@ public class WebSocket<Stream>(
             config: WebSocketConfig? = null,
         ): WebSocket<Stream> =
             WebSocket(stream, WebSocketContext.fromPartiallyRead(part, role, config))
+
+        public fun <Stream> fromPartiallyReadWithExtensions(
+            stream: Stream,
+            part: ByteArray,
+            role: Role,
+            config: WebSocketConfig? = null,
+            extensions: Extensions = Extensions(),
+        ): WebSocket<Stream> =
+            WebSocket(stream, WebSocketContext.fromPartiallyReadWithExtensions(part, role, config, extensions))
     }
 }
 
@@ -440,17 +474,43 @@ public class WebSocketContext(
         }
     }
 
+    /** Translate "Connection reset by peer" into ConnectionClosed if appropriate. */
+    public fun checkConnectionReset(err: Throwable): Throwable {
+        if (!state.canRead() && err is TungsteniteException.Io && err.message?.contains("Connection reset", ignoreCase = true) == true) {
+            return TungsteniteException.ConnectionClosed()
+        }
+        return err
+    }
+
     public companion object {
         public fun new(role: Role, config: WebSocketConfig? = null): WebSocketContext =
             WebSocketContext(role, config ?: WebSocketConfig.default())
+
+        public fun fromRawSocketWithExtensions(
+            role: Role,
+            config: WebSocketConfig? = null,
+            extensions: Extensions = Extensions(),
+        ): WebSocketContext {
+            val ctx = new(role, config)
+            ctx.extensions = extensions
+            return ctx
+        }
 
         public fun fromPartiallyRead(
             part: ByteArray,
             role: Role,
             config: WebSocketConfig? = null,
+        ): WebSocketContext =
+            fromPartiallyReadWithExtensions(part, role, config, Extensions())
+
+        public fun fromPartiallyReadWithExtensions(
+            part: ByteArray,
+            role: Role,
+            config: WebSocketConfig? = null,
+            extensions: Extensions = Extensions(),
         ): WebSocketContext {
             val conf = config ?: WebSocketConfig.default()
-            val ctx = WebSocketContext(role, conf)
+            val ctx = WebSocketContext(role, conf, extensions)
             for (b in part) {
                 ctx.frame.inBuffer.add(b)
             }

@@ -1,4 +1,4 @@
-// port-lint: tests tungstenite/src/handshake/mod.rs
+// port-lint: tests handshake/mod.rs
 package io.github.kotlinmania.tungstenite.handshake
 
 import kotlin.test.Test

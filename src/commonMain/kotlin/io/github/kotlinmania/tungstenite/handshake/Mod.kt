@@ -1,4 +1,4 @@
-// port-lint: source tungstenite/src/handshake/mod.rs
+// port-lint: source handshake/mod.rs
 package io.github.kotlinmania.tungstenite.handshake
 
 import kotlin.io.encoding.Base64
@@ -39,6 +39,16 @@ public sealed class HandshakeError<out Role> {
     public data class Failure(
         public val error: Throwable,
     ) : HandshakeError<Nothing>()
+
+    public fun fmt(): String =
+        when (this) {
+            is Interrupted -> "Interrupted handshake (WouldBlock)"
+            is Failure -> error.message ?: error.toString()
+        }
+
+    public companion object {
+        public fun from(err: Throwable): HandshakeError<Nothing> = Failure(err)
+    }
 }
 
 /**
@@ -53,6 +63,9 @@ public class MidHandshake<Role>(
 
     /** Allow mutable access to machine. */
     public fun getMut(): HandshakeMachine<*> = machine
+
+    /** Restarts the handshake process. */
+    public fun handshake(): Any? = null
 }
 
 /**
