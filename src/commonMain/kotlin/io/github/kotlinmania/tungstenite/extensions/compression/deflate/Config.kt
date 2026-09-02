@@ -135,6 +135,11 @@ public data class PermessageDeflateConfig(
      */
     public fun asOffer(): WebsocketProtocolExtension = intoExtension()
 
+    /**
+     * Generate the corresponding WebsocketProtocolExtension value.
+     */
+    public fun asExtension(): WebsocketProtocolExtension = intoExtension()
+
     public companion object {
         public fun new(): PermessageDeflateConfig = PermessageDeflateConfig()
 
@@ -192,11 +197,6 @@ public data class PermessageDeflateConfig(
             }
             return config
         }
-
-        public fun parseParams(
-            params: List<WebsocketExtensionParam>,
-            @Suppress("UNUSED_PARAMETER") role: Role,
-        ): PermessageDeflateConfig = parseParams(params)
     }
 }
 
