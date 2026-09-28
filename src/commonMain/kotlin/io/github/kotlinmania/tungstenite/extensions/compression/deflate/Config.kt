@@ -379,8 +379,13 @@ public data class DeflateConfig(
  * Parameter name descriptor for permessage-deflate parameters.
  */
 public sealed class ParamName {
-    public data class NoContextTakeover(public val role: Role) : ParamName()
-    public data class MaxWindowBits(public val role: Role) : ParamName()
+    public data class NoContextTakeover(
+        public val role: Role,
+    ) : ParamName()
+
+    public data class MaxWindowBits(
+        public val role: Role,
+    ) : ParamName()
 
     public fun ordinal(): Int =
         when (this) {
@@ -405,4 +410,3 @@ public sealed class ParamName {
             }
     }
 }
-

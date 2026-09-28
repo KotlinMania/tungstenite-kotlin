@@ -97,4 +97,3 @@ public class Utf8Bytes internal constructor(
 
 /** Type alias for deref target. */
 public typealias Utf8BytesTarget = String
-
