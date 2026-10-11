@@ -19,7 +19,7 @@ public interface NoDelay {
 /**
  * A stream that might be protected with TLS.
  */
-public sealed class MaybeTlsStream<S> {
+public sealed class MaybeTlsStream<S> : NoDelay {
     /** Unencrypted socket stream. */
     public data class Plain<S>(
         public val stream: S,
@@ -42,4 +42,18 @@ public sealed class MaybeTlsStream<S> {
             is NativeTls -> stream
             is Rustls -> stream
         }
+
+    override fun setNoDelay(nodelay: Boolean) {
+        val s = get()
+        if (s is NoDelay) {
+            s.setNoDelay(nodelay)
+        }
+    }
 }
+
+/**
+ * Debug representation of a Rustls stream.
+ */
+public data class RustlsStreamDebug<S>(
+    public val stream: S,
+)

@@ -129,6 +129,9 @@ public data class FrameHeader(
 
         public fun default(): FrameHeader = FrameHeader()
 
+        public fun parseInternal(data: ByteArray, offset: Int = 0, length: Int = data.size - offset): Triple<FrameHeader, Long, Int>? =
+            parse(data, offset, length)
+
         /**
          * Parse a header from a byte slice.
          * Returns `(header, payloadLength, bytesConsumed)` or `null` if insufficient data.

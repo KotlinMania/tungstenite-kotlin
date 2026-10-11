@@ -294,3 +294,12 @@ internal object RequestParser : TryParse<Request> {
         return Result.success(Pair(consumed, Request(uri = uri, method = method, version = version, headers = headers)))
     }
 }
+
+/** Type alias for Server error response. */
+public typealias ErrorResponse = Response
+
+/** Type alias for ServerHandshake incoming data. */
+public typealias ServerHandshakeIncomingData = Request
+
+/** Type alias for ServerHandshake final result. */
+public typealias ServerHandshakeFinalResult<S> = WebSocket<S>
