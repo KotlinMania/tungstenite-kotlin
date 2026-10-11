@@ -11,6 +11,7 @@ import io.github.kotlinmania.tungstenite.protocol.frame.CloseFrame
 import io.github.kotlinmania.tungstenite.protocol.frame.Frame
 import io.github.kotlinmania.tungstenite.protocol.frame.FrameCodec
 import io.github.kotlinmania.tungstenite.protocol.frame.OpCode
+import kotlin.jvm.JvmName
 import io.github.kotlinmania.tungstenite.protocol.frame.Control as OpCtl
 import io.github.kotlinmania.tungstenite.protocol.frame.Data as OpData
 
@@ -98,8 +99,11 @@ public class WebSocket<Stream>(
         context.setConfig(setFunc)
     }
 
+    @get:JvmName("config")
     public val config: WebSocketConfig
         get() = context.config
+
+    public fun getConfig(): WebSocketConfig = context.config
 
     public fun canRead(): Boolean = context.canRead()
 
@@ -527,3 +531,26 @@ public fun checkMaxSize(size: Long, maxSize: Long?) {
         throw TungsteniteException.Capacity(CapacityError.MessageTooLong(size, maxSize))
     }
 }
+
+/**
+ * Translate "Connection reset by peer" into ConnectionClosed if appropriate.
+ */
+public interface CheckConnectionReset<T> {
+    public fun checkConnectionReset(state: WebSocketState): Result<T>
+}
+
+/**
+ * Check connection reset on Result<T>.
+ */
+public fun <T> Result<T>.checkConnectionReset(state: WebSocketState): Result<T> =
+    fold(
+        onSuccess = { Result.success(it) },
+        onFailure = { error ->
+            val isConnReset = error is TungsteniteException.Io && error.isConnectionReset()
+            if (!state.canRead() && isConnReset) {
+                Result.failure(TungsteniteException.ConnectionClosed())
+            } else {
+                Result.failure(error)
+            }
+        },
+    )

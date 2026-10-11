@@ -63,6 +63,9 @@ public sealed class TungsteniteException(
     ) : TungsteniteException("IO error: $message", cause) {
         override fun intoNonBlocking(): Throwable? =
             if (message?.contains("WouldBlock", ignoreCase = true) == true) null else this
+
+        public fun isConnectionReset(): Boolean =
+            message?.contains("Connection reset", ignoreCase = true) == true
     }
 
     /**

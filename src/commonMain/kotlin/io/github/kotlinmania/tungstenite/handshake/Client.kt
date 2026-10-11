@@ -395,3 +395,9 @@ internal object ResponseParser : TryParse<Response> {
         return Result.success(Pair(consumed, Response(statusCode = statusCode, version = version, headers = headers)))
     }
 }
+
+/** Type alias for ClientHandshake incoming data. */
+public typealias ClientHandshakeIncomingData = Response
+
+/** Type alias for ClientHandshake final result. */
+public typealias ClientHandshakeFinalResult<S> = Pair<WebSocket<S>, Response>

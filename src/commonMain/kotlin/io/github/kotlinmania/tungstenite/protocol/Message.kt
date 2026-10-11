@@ -29,22 +29,38 @@ public enum class MessageType {
     Binary,
 }
 
+/**
+ * Collector holding incomplete message buffer.
+ */
+internal sealed class IncompleteMessageCollector {
+    /** Text message collector. */
+    internal class Text(
+        internal val collector: StringCollector = StringCollector(),
+    ) : IncompleteMessageCollector()
+
+    /** Binary message collector. */
+    internal class Binary(
+        internal val buffer: ArrayList<Byte> = ArrayList(),
+    ) : IncompleteMessageCollector()
+}
+
 /** A struct representing the incomplete message. */
 public class IncompleteMessage(
     public val messageType: MessageType,
     private val compressed: Boolean = false,
 ) {
-    private val stringCollector: StringCollector? =
-        if (messageType == MessageType.Text) StringCollector() else null
-    private val binaryCollector: ArrayList<Byte>? =
-        if (messageType == MessageType.Binary) ArrayList() else null
+    internal val collector: IncompleteMessageCollector =
+        when (messageType) {
+            MessageType.Text -> IncompleteMessageCollector.Text()
+            MessageType.Binary -> IncompleteMessageCollector.Binary()
+        }
 
     public fun compressed(): Boolean = compressed
 
     public fun len(): Int =
-        when (messageType) {
-            MessageType.Text -> stringCollector!!.len()
-            MessageType.Binary -> binaryCollector!!.size
+        when (val c = collector) {
+            is IncompleteMessageCollector.Text -> c.collector.len()
+            is IncompleteMessageCollector.Binary -> c.buffer.size
         }
 
     public fun extend(tail: ByteArray, sizeLimit: Long? = null) {
@@ -60,21 +76,20 @@ public class IncompleteMessage(
             )
         }
 
-        when (messageType) {
-            MessageType.Text -> stringCollector!!.extend(tail)
-            MessageType.Binary -> {
-                val bin = binaryCollector!!
+        when (val c = collector) {
+            is IncompleteMessageCollector.Text -> c.collector.extend(tail)
+            is IncompleteMessageCollector.Binary -> {
                 for (b in tail) {
-                    bin.add(b)
+                    c.buffer.add(b)
                 }
             }
         }
     }
 
     public fun complete(): Message =
-        when (messageType) {
-            MessageType.Binary -> Message.binary(binaryCollector!!.toByteArray())
-            MessageType.Text -> Message.text(stringCollector!!.intoString())
+        when (val c = collector) {
+            is IncompleteMessageCollector.Binary -> Message.binary(c.buffer.toByteArray())
+            is IncompleteMessageCollector.Text -> Message.text(c.collector.intoString())
         }
 
     public companion object {
