@@ -469,10 +469,10 @@ public class WebSocketContext(
     }
 
     private fun setAdditional(add: Frame) {
-        val emptyOrPong =
-            additionalSend == null ||
-                additionalSend?.header?.opcode is OpCode.Control &&
+        val isPong =
+            additionalSend?.header?.opcode is OpCode.Control &&
                 (additionalSend?.header?.opcode as OpCode.Control).code is OpCtl.Pong
+        val emptyOrPong = additionalSend == null || isPong
         if (emptyOrPong) {
             additionalSend = add
         }
