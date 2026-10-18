@@ -5,6 +5,7 @@ serialization = "1.11.0"
 datetime = "0.8.0"
 collectionsImmutable = "0.5.2"
 bytes = "0.2.2"
+serde = "0.1.11"
 http = "0.2.1"
 log = "0.1.5"
 sha1 = "0.1.2"
@@ -34,6 +35,7 @@ kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.
 collections-immutable = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable", version.ref = "collectionsImmutable" }
 kotlinx-benchmark-runtime = { module = "org.jetbrains.kotlinx:kotlinx-benchmark-runtime", version.ref = "kotlinxBenchmark" }
 bytes-kotlin = { module = "io.github.kotlinmania:bytes-kotlin", version.ref = "bytes" }
+serde-core = { module = "io.github.kotlinmania:serde-core", version.ref = "serde" }
 http-kotlin = { module = "io.github.kotlinmania:http-kotlin", version.ref = "http" }
 log-kotlin = { module = "io.github.kotlinmania:log-kotlin", version.ref = "log" }
 sha1-kotlin = { module = "io.github.kotlinmania:sha1-kotlin", version.ref = "sha1" }
@@ -46,6 +48,7 @@ tungstenite-commonMain = [
   "kotlinx-coroutines-core",
   "collections-immutable",
   "bytes-kotlin",
+  "serde-core",
   "http-kotlin",
   "log-kotlin",
   "sha1-kotlin",

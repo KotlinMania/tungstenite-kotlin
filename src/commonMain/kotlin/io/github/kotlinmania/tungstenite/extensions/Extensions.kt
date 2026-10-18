@@ -1,10 +1,8 @@
-// port-lint: source extensions/mod.rs
 package io.github.kotlinmania.tungstenite.extensions
 
 import io.github.kotlinmania.tungstenite.extensions.compression.PerMessageCompressionContext
 import io.github.kotlinmania.tungstenite.extensions.compression.deflate.DeflateConfig
 import io.github.kotlinmania.tungstenite.extensions.compression.deflate.DeflateContext
-
 import io.github.kotlinmania.tungstenite.extensions.compression.deflate.EXTENSION_NAME
 import io.github.kotlinmania.tungstenite.extensions.compression.deflate.PermessageDeflateConfig
 import io.github.kotlinmania.tungstenite.extensions.headers.SecWebsocketExtensions

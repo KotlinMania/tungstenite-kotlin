@@ -1,4 +1,3 @@
-// port-lint: tests extensions/mod.rs
 package io.github.kotlinmania.tungstenite.extensions
 
 import io.github.kotlinmania.tungstenite.extensions.compression.deflate.DeflateConfig
@@ -13,7 +12,7 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
-class ModTest {
+class ExtensionsTest {
     @Test
     fun acceptOffersIgnoresUnknownExtensions() {
         val config = ExtensionsConfig.default()

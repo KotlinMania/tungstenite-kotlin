@@ -1,4 +1,3 @@
-// port-lint: tests extensions/compression/deflate/mod.rs
 package io.github.kotlinmania.tungstenite.extensions.compression.deflate
 
 import io.github.kotlinmania.tungstenite.extensions.compression.DecompressionError
@@ -10,7 +9,7 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-class ModTest {
+class DeflateContextTest {
     @Test
     fun interop() {
         val data = ByteArray(2048) { (it % 251).toByte() }

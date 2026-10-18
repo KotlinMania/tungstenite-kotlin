@@ -1,10 +1,9 @@
-// port-lint: tests handshake/mod.rs
 package io.github.kotlinmania.tungstenite.handshake
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class ModTest {
+class AcceptKeyTest {
     @Test
     fun keyConversion() {
         // example from RFC 6455

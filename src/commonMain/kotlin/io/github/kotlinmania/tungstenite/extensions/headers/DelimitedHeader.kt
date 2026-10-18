@@ -1,4 +1,3 @@
-// port-lint: source extensions/headers/mod.rs
 package io.github.kotlinmania.tungstenite.extensions.headers
 
 /**
