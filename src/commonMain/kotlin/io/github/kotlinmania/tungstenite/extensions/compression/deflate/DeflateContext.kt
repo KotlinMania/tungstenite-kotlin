@@ -1,11 +1,7 @@
-// port-lint: source extensions/compression/deflate/mod.rs
 package io.github.kotlinmania.tungstenite.extensions.compression.deflate
 
 import io.github.kotlinmania.tungstenite.extensions.compression.DecompressionError
 import io.github.kotlinmania.tungstenite.protocol.Role
-
-public typealias DeflateParameterError = ParameterError
-public typealias DeflateNegotiationError = NegotiationError
 
 public const val EXTENSION_NAME: String = PER_MESSAGE_DEFLATE
 

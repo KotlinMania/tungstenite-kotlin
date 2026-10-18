@@ -1,4 +1,3 @@
-// port-lint: tests protocol/frame/mod.rs
 package io.github.kotlinmania.tungstenite.protocol.frame
 
 import io.github.kotlinmania.tungstenite.CapacityError

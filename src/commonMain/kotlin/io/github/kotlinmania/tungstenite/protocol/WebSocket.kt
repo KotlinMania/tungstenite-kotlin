@@ -1,4 +1,3 @@
-// port-lint: source protocol/mod.rs
 package io.github.kotlinmania.tungstenite.protocol
 
 import io.github.kotlinmania.bytes.Bytes

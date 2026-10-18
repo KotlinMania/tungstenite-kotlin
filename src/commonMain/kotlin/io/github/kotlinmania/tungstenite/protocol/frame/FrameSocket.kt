@@ -1,4 +1,3 @@
-// port-lint: source protocol/frame/mod.rs
 package io.github.kotlinmania.tungstenite.protocol.frame
 
 import io.github.kotlinmania.bytes.Bytes
