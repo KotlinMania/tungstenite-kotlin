@@ -4,7 +4,7 @@ package io.github.kotlinmania.tungstenite.extensions
 import io.github.kotlinmania.tungstenite.extensions.compression.PerMessageCompressionContext
 import io.github.kotlinmania.tungstenite.extensions.compression.deflate.DeflateConfig
 import io.github.kotlinmania.tungstenite.extensions.compression.deflate.DeflateContext
-import io.github.kotlinmania.tungstenite.extensions.compression.deflate.DeflateParameterError
+
 import io.github.kotlinmania.tungstenite.extensions.compression.deflate.EXTENSION_NAME
 import io.github.kotlinmania.tungstenite.extensions.compression.deflate.PermessageDeflateConfig
 import io.github.kotlinmania.tungstenite.extensions.headers.SecWebsocketExtensions
@@ -72,7 +72,7 @@ public data class ExtensionsConfig(
                     val parsedConfig =
                         try {
                             PermessageDeflateConfig.parseParams(extension.params)
-                        } catch (_: DeflateParameterError) {
+                        } catch (_: io.github.kotlinmania.tungstenite.extensions.compression.deflate.ParameterError) {
                             throw ExtensionsError.MalformedExtension(EXTENSION_NAME)
                         }
 
