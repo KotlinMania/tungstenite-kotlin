@@ -119,7 +119,7 @@ Please report bugs and make feature requests [here](https://github.com/snapview/
 
 ```kotlin
 dependencies {
-    implementation("io.github.kotlinmania:tungstenite-kotlin:0.1.0")
+    implementation("io.github.kotlinmania:tungstenite-kotlin:0.2.0")
 }
 ```
 

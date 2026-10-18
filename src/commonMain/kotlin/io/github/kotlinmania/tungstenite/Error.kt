@@ -14,9 +14,6 @@ public typealias Result<T> = kotlin.Result<T>
 /** Result type of Tungstenite library calls. */
 public typealias TungsteniteResult<T> = Result<T>
 
-/** Type alias for WebSocket errors. */
-public typealias Error = TungsteniteException
-
 /**
  * Possible WebSocket errors.
  */
