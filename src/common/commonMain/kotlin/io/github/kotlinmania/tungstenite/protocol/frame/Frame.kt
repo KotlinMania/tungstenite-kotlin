@@ -167,7 +167,7 @@ public data class FrameHeader(
                     }
                     is LengthFormat.U64 -> {
                         var l = 0L
-                        for (i in 0 until 8) {
+                        repeat(8) {
                             l = (l shl 8) or data[pos++].toUByte().toLong()
                         }
                         l

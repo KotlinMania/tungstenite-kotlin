@@ -134,7 +134,7 @@ class ConfigTest {
     private fun parseExtensions(raw: String): io.github.kotlinmania.tungstenite.extensions.headers.SecWebsocketExtensions {
         val lines = raw.lines()
         val headerLine = lines.firstOrNull { it.startsWith("Sec-WebSocket-Extensions:", ignoreCase = true) }
-        val value = headerLine?.substringAfter(":")?.trim() ?: ""
+        val value = headerLine?.substringAfter(":")?.trim().orEmpty()
         return io.github.kotlinmania.tungstenite.extensions.headers.SecWebsocketExtensions
             .parse(value)
     }

@@ -50,7 +50,7 @@ public class WriteTest {
         assertEquals(1, ws.getRef().flushCount)
 
         // send a batch of messages
-        for (i in 0 until 100) {
+        repeat(100) {
             ws.write(mock::write, Message.text("Batch me!"))
         }
         assertEquals(55 * batchMeLen + sendMeLen, ws.getRef().writtenBytes)

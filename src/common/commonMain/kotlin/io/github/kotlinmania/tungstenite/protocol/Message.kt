@@ -193,7 +193,7 @@ public sealed class Message {
             is Binary -> data.asString()
             is Ping -> data.asString()
             is Pong -> data.asString()
-            is Close -> frame?.reason?.asStr() ?: ""
+            is Close -> frame?.reason?.asStr().orEmpty()
             is FrameMsg -> frame.toText()
         }
 

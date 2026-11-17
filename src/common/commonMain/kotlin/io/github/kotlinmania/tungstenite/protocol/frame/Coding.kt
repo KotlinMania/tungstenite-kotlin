@@ -270,7 +270,7 @@ public sealed class CloseCode {
 
     public companion object {
         public fun fromUShort(code: UShort): CloseCode =
-            when (val c = code.toInt()) {
+            when (code.toInt()) {
                 1000 -> Normal
                 1001 -> Away
                 1002 -> ProtocolError

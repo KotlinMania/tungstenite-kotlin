@@ -69,7 +69,7 @@ public class FrameCodec(
     inBufLen: Int = READ_BUF_LEN,
 ) {
     internal val inBuffer: ArrayList<Byte> = ArrayList(inBufLen)
-    private var inBufMaxRead: Int = maxOf(inBufLen, FrameHeader.MAX_SIZE)
+    private val inBufMaxRead: Int = maxOf(inBufLen, FrameHeader.MAX_SIZE)
     internal val outBuffer: ArrayList<Byte> = ArrayList()
     public var maxOutBufferLen: Int = Int.MAX_VALUE
         private set

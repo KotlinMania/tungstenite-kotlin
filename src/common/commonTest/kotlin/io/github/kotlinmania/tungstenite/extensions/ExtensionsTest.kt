@@ -11,6 +11,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 class ExtensionsTest {
     @Test
@@ -118,8 +119,8 @@ class ExtensionsTest {
     fun intoUnnegotiatedContext() {
         val config = ExtensionsConfig(permessageDeflate = DeflateConfig.new())
         val ext = config.intoUnnegotiatedContext(Role.Client)
-        assertNotNull(ext.perMessageCompression)
-        assertNotNull(ext.perMessageCompressor())
-        assertNotNull(ext.perMessageDecompressor())
+        assertTrue(ext.perMessageCompression != null)
+        assertTrue(ext.perMessageCompressor() != null)
+        assertTrue(ext.perMessageDecompressor() != null)
     }
 }

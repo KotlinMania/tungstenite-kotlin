@@ -301,12 +301,10 @@ public class WebSocketContext(
     }
 
     public fun flush(writeFn: (ByteArray, Int, Int) -> Int, flushFn: () -> Unit) {
-        if (additionalSend != null) {
-            val msg = additionalSend
+        val msg = additionalSend
+        if (msg != null) {
             additionalSend = null
-            if (msg != null) {
-                bufferFrame(writeFn, msg)
-            }
+            bufferFrame(writeFn, msg)
         }
         frame.writeOutBuffer(writeFn)
         flushFn()
@@ -460,7 +458,7 @@ public class WebSocketContext(
         }
 
     private fun bufferFrame(writeFn: (ByteArray, Int, Int) -> Int, frameToSend: Frame) {
-        var frame = frameToSend
+        val frame = frameToSend
         if (role == Role.Client) {
             frame.setRandomMask()
         }

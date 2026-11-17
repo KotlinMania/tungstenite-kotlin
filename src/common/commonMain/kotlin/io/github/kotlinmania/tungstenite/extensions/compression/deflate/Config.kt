@@ -117,12 +117,14 @@ public data class PermessageDeflateConfig(
         if (clientNoContextTakeover) {
             params.add(WebsocketExtensionParam(CLIENT_NO_CONTEXT_TAKEOVER))
         }
-        if (serverMaxWindowBits != null) {
-            params.add(WebsocketExtensionParam(SERVER_MAX_WINDOW_BITS, serverMaxWindowBits.toString()))
+        val serverBits = serverMaxWindowBits
+        if (serverBits != null) {
+            params.add(WebsocketExtensionParam(SERVER_MAX_WINDOW_BITS, serverBits.toString()))
         }
-        if (clientMaxWindowBitsPresent || clientMaxWindowBits != null) {
-            if (clientMaxWindowBits != null) {
-                params.add(WebsocketExtensionParam(CLIENT_MAX_WINDOW_BITS, clientMaxWindowBits.toString()))
+        val clientBits = clientMaxWindowBits
+        if (clientMaxWindowBitsPresent || clientBits != null) {
+            if (clientBits != null) {
+                params.add(WebsocketExtensionParam(CLIENT_MAX_WINDOW_BITS, clientBits.toString()))
             } else {
                 params.add(WebsocketExtensionParam(CLIENT_MAX_WINDOW_BITS))
             }

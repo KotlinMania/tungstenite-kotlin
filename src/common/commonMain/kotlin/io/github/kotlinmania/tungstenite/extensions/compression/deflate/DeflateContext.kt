@@ -162,7 +162,7 @@ public class DeflateDecompress(
                         throw DeflateError.Decompress
                     }
                     val blockLen = len and 0xFFFF
-                    for (i in 0 until blockLen) {
+                    repeat(blockLen) {
                         val b = reader.readByte()
                         if (output.size + 1 > sizeLimit) {
                             throw DecompressionError.SizeLimitReached
@@ -471,17 +471,17 @@ private fun readDynamicTrees(reader: DeflateBitReader): Pair<HuffmanTree, Huffma
         } else if (sym == 16) {
             val repeat = reader.readBits(2) + 3
             val prev = if (idx > 0) treeLengths[idx - 1] else 0
-            for (r in 0 until repeat) {
+            kotlin.repeat(repeat) {
                 treeLengths[idx++] = prev
             }
         } else if (sym == 17) {
             val repeat = reader.readBits(3) + 3
-            for (r in 0 until repeat) {
+            kotlin.repeat(repeat) {
                 treeLengths[idx++] = 0
             }
         } else if (sym == 18) {
             val repeat = reader.readBits(7) + 11
-            for (r in 0 until repeat) {
+            kotlin.repeat(repeat) {
                 treeLengths[idx++] = 0
             }
         }

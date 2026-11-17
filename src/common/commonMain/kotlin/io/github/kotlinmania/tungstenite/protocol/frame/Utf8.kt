@@ -77,13 +77,13 @@ public class Utf8Bytes internal constructor(
 
         /** Creates [Utf8Bytes] from [Bytes], validating UTF-8 encoding. */
         public fun tryFrom(bytes: Bytes): Utf8Bytes {
-            val str = bytes.asString()
+            bytes.asString()
             return Utf8Bytes(bytes)
         }
 
         /** Creates [Utf8Bytes] from [ByteArray], validating UTF-8 encoding. */
         public fun tryFrom(bytes: ByteArray): Utf8Bytes {
-            val str = bytes.decodeToString()
+            bytes.decodeToString()
             return Utf8Bytes(Bytes.from(bytes))
         }
 

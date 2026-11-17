@@ -251,7 +251,7 @@ public class VerifyData(
                 try {
                     config.verifyAgreedOn(agreed)
                 } catch (e: ExtensionsError) {
-                    throw TungsteniteException.ProtocolViolation(ProtocolError.InvalidExtensionsHeader(e.message ?: ""))
+                    throw TungsteniteException.ProtocolViolation(ProtocolError.InvalidExtensionsHeader(e.message.orEmpty()))
                 }
             } else {
                 Extensions()
@@ -306,7 +306,7 @@ public class ClientHandshake<S>(
             }
             is StageResult.DoneReading -> {
                 val response = finish.result
-                val (verifiedResponse, extensions) =
+                val (verifiedResponse, _) =
                     try {
                         verifyData.verifyResponse(response, config?.extensions)
                     } catch (e: Throwable) {

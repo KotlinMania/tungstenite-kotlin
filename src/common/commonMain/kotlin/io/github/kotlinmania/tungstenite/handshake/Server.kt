@@ -209,7 +209,7 @@ public class ServerHandshake<S, C : Callback>(
                         } catch (e: Exception) {
                             return Result.failure(
                                 TungsteniteException.ProtocolViolation(
-                                    ProtocolError.InvalidExtensionsHeader(e.message ?: ""),
+                                    ProtocolError.InvalidExtensionsHeader(e.message.orEmpty()),
                                 ),
                             )
                         }

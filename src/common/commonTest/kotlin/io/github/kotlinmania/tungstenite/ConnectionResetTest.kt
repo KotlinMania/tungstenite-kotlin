@@ -17,16 +17,7 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 public class ConnectionResetTest {
-    private fun <T> doTest(
-        port: Int,
-        clientTask: (WebSocketContext) -> Unit,
-        serverTask: (WebSocketContext) -> Unit,
-    ) {
-        val server = WebSocketContext.new(Role.Server)
-        val client = WebSocketContext.new(Role.Client)
-        serverTask(server)
-        clientTask(client)
-    }
+    // Unported harness helper `do_test` from tests/connection_reset.rs: multi-threaded OS TcpListener/TcpStream sockets are outside portable KMP commonTest; tests below exercise the exact close/read state transitions via in-memory streams.
 
     @Test
     public fun testServerClose() {
