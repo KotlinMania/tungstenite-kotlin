@@ -14,16 +14,12 @@ potential-bugs:
   EqualsWithHashCodeExist: { active: false }
   ExplicitGarbageCollectionCall: { active: true }
   LateinitUsage: { active: true }
-  NullCheckOnMutableProperty: { active: false }
-  UnreachableCode: { active: false }
+  NullCheckOnMutableProperty: { active: true }
+  UnreachableCode: { active: true }
   WrongEqualsTypeParameter: { active: false }
   UnsafeCallOnNullableType: { active: false }
   UnnecessaryNotNullOperator: { active: false }
   ImplicitDefaultLocale: { active: false }
-  DoubleMutabilityForCollection: { active: false }
-  IteratorNotThrowingNoSuchElementException: { active: false }
-  IteratorHasNextCallsNextMethod: { active: false }
-  IgnoredReturnValue: { active: false }
 
 performance:
   active: true
@@ -50,15 +46,9 @@ style:
   WildcardImport: { active: false }
   ModifierOrder: { active: false }
   UnusedPrivateProperty: { active: false }
-  UnusedVariable: { active: false }
-  UnusedPrivateFunction: { active: false }
-  UnusedPrivateClass: { active: false }
-  ObjectLiteralToLambda: { active: false }
-  UseOrEmpty: { active: false }
-  UseIsNullOrEmpty: { active: false }
-  VarCouldBeVal: { active: false }
   RedundantVisibilityModifier: { active: false }
   AbstractClassCanBeInterface: { active: false }
+  AbstractClassCanBeConcreteClass: { active: false }
 
 complexity:
   active: true
@@ -98,7 +88,6 @@ naming:
   MatchingDeclarationName: { active: false }
   ObjectPropertyNaming: { active: false }
   MemberNameEqualsClassName: { active: false }
-  NoNameShadowing: { active: false }
 
 exceptions:
   active: true
