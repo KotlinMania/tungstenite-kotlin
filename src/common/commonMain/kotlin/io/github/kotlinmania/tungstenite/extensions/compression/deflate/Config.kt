@@ -227,7 +227,7 @@ public data class DeflateConfig(
         }
 
     /**
-     * Sets server_no_context_takeover or client_no_context_takeover.
+     * Configures server or client no-context-takeover mode for permessage-deflate.
      */
     public fun setNoContextTakeover(role: Role, noContextTakeover: Boolean): DeflateConfig =
         apply {
